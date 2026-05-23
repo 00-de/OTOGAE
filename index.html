@@ -37,10 +37,8 @@ background:black;
 /* 全体 */
 #game{
 position:relative;
-
 width:100vw;
 height:100vh;
-
 overflow:hidden;
 
 background:
@@ -56,7 +54,6 @@ color:white;
 /* 背景 */
 .bg{
 position:absolute;
-
 width:100%;
 height:100%;
 
@@ -71,49 +68,109 @@ opacity:0.35;
 .top-ui{
 position:absolute;
 
-top:20px;
+top:15px;
 left:0;
 
 width:100%;
 
-padding:0 20px;
+padding:0 15px;
 
 display:flex;
 justify-content:space-between;
 align-items:center;
 
-z-index:50;
+z-index:100;
 }
 
-/* 曲タイトル */
+/* タイトル */
 .song-title{
-font-size:22px;
+font-size:20px;
 font-weight:bold;
-
-text-shadow:
-0 0 10px black;
+text-shadow:0 0 10px black;
 }
 
 /* スコア */
 .score{
-font-size:22px;
+font-size:20px;
 font-weight:bold;
+}
+
+/* ボタン */
+.controls{
+position:absolute;
+
+top:60px;
+left:50%;
+
+transform:translateX(-50%);
+
+display:flex;
+gap:10px;
+
+z-index:100;
+}
+
+/* ボタン */
+.control-btn{
+
+padding:10px 18px;
+
+border:none;
+border-radius:14px;
+
+background:white;
+color:#222;
+
+font-weight:bold;
+
+font-size:14px;
+
+box-shadow:
+0 0 15px white;
+}
+
+/* 難易度 */
+.mode-area{
+position:absolute;
+
+top:115px;
+left:50%;
+
+transform:translateX(-50%);
+
+display:flex;
+gap:10px;
+
+z-index:100;
+}
+
+/* 難易度ボタン */
+.mode-btn{
+
+padding:10px 18px;
+
+border:none;
+border-radius:14px;
+
+background:#ffffffcc;
+
+font-weight:bold;
+font-size:14px;
 }
 
 /* コンボ */
 #combo{
 position:absolute;
 
-top:90px;
+top:170px;
 left:50%;
 
-transform:
-translateX(-50%);
+transform:translateX(-50%);
 
-font-size:52px;
+font-size:50px;
 font-weight:bold;
 
-z-index:50;
+z-index:100;
 
 text-shadow:
 0 0 20px white;
@@ -123,16 +180,15 @@ text-shadow:
 #judge{
 position:absolute;
 
-top:160px;
+top:235px;
 left:50%;
 
-transform:
-translateX(-50%);
+transform:translateX(-50%);
 
-font-size:38px;
+font-size:35px;
 font-weight:bold;
 
-z-index:50;
+z-index:100;
 
 text-shadow:
 0 0 15px white;
@@ -145,8 +201,7 @@ position:absolute;
 bottom:0;
 left:50%;
 
-transform:
-translateX(-50%);
+transform:translateX(-50%);
 
 width:95%;
 max-width:520px;
@@ -238,7 +293,7 @@ transform:scaleY(2);
 
 }
 
-/* スタートボタン */
+/* スタート */
 .start-btn{
 position:absolute;
 
@@ -259,7 +314,7 @@ border-radius:20px;
 background:white;
 color:#333;
 
-z-index:100;
+z-index:200;
 
 box-shadow:
 0 0 25px white;
@@ -282,7 +337,7 @@ color:gold;
 
 display:none;
 
-z-index:200;
+z-index:300;
 
 text-shadow:
 0 0 25px gold,
@@ -320,20 +375,49 @@ scale(1);
 
 <div id="game">
 
-<!-- 背景 -->
 <div class="bg"></div>
 
 <!-- 上UI -->
 <div class="top-ui">
 
 <div class="song-title">
-🎵 風になる合図 / 蓮
+🎵 風になる合図 / :contentReference[oaicite:0]{index=0}
 </div>
 
 <div class="score"
 id="score">
 Score : 0
 </div>
+
+</div>
+
+<!-- ボタン -->
+<div class="controls">
+
+<button class="control-btn"
+onclick="pauseGame()">
+⏸ 一時停止
+</button>
+
+<button class="control-btn"
+onclick="resetScore()">
+🔄 リセット
+</button>
+
+</div>
+
+<!-- 難易度 -->
+<div class="mode-area">
+
+<button class="mode-btn"
+onclick="setEasyMode()">
+🌟 初級
+</button>
+
+<button class="mode-btn"
+onclick="setHardMode()">
+🔥 上級
+</button>
 
 </div>
 
@@ -361,23 +445,19 @@ START LIVE
 <!-- レーン -->
 <div class="lanes">
 
-<div class="lane"
-data-lane="0">
+<div class="lane" data-lane="0">
 <div class="hit-line"></div>
 </div>
 
-<div class="lane"
-data-lane="1">
+<div class="lane" data-lane="1">
 <div class="hit-line"></div>
 </div>
 
-<div class="lane"
-data-lane="2">
+<div class="lane" data-lane="2">
 <div class="hit-line"></div>
 </div>
 
-<div class="lane"
-data-lane="3">
+<div class="lane" data-lane="3">
 <div class="hit-line"></div>
 </div>
 
@@ -392,18 +472,13 @@ src="kaze.mp3">
 
 <script>
 
-/* ダブルタップ拡大防止 */
+/* 拡大防止 */
 document.addEventListener(
 "dblclick",
-function(e){
-
-e.preventDefault();
-
-},
+e=>e.preventDefault(),
 { passive:false }
 );
 
-/* ピンチズーム防止 */
 document.addEventListener(
 "touchmove",
 function(e){
@@ -444,17 +519,25 @@ let combo = 0;
 let score = 0;
 let miss = 0;
 
-/* 開始フラグ */
 let started = false;
+let paused = false;
+
+/* 難易度 */
+let noteSpeed = 3;
+let noteInterval = 450;
 
 /* ノーツ */
-const notes = [];
+let notes = [];
 
-/* 自動譜面生成 */
+/* 譜面生成 */
+function generateNotes(){
+
+notes = [];
+
 for(
 let i = 1000;
 i < 180000;
-i += 450
+i += noteInterval
 ){
 
 notes.push({
@@ -470,6 +553,11 @@ Math.random() * 4
 
 }
 
+}
+
+/* 初期生成 */
+generateNotes();
+
 /* ゲーム開始 */
 function startGame(){
 
@@ -477,32 +565,25 @@ if(started) return;
 
 started = true;
 
-/* ボタン消す */
 document.querySelector(
 ".start-btn"
 ).style.display = "none";
 
-/* 音楽再生 */
-music.play().catch(err=>{
+music.play();
 
-alert(
-"音楽エラー：" + err
-);
-
-});
-
-/* ループ */
 gameLoop();
 
 }
 
-/* ゲームループ */
+/* ループ */
 function gameLoop(){
+
+if(paused) return;
 
 const currentTime =
 music.currentTime * 1000;
 
-/* ノーツ生成 */
+/* ノーツ */
 notes.forEach(note=>{
 
 if(
@@ -518,7 +599,6 @@ note.spawned = true;
 
 });
 
-/* 曲終了まで */
 if(!music.paused){
 
 requestAnimationFrame(
@@ -529,7 +609,7 @@ gameLoop
 
 }
 
-/* ノーツ作成 */
+/* ノーツ生成 */
 function createNote(noteData){
 
 const lane =
@@ -544,21 +624,17 @@ note.dataset.hit = "false";
 
 lane.appendChild(note);
 
-/* 初期位置 */
 let pos = -30;
 
-/* 落下速度 */
-const speed = 3;
-
-/* 落下 */
 const move = setInterval(()=>{
 
-pos += speed;
+if(paused) return;
+
+pos += noteSpeed;
 
 note.style.top =
 pos + "px";
 
-/* 画面下 */
 if(pos >= window.innerHeight){
 
 if(
@@ -585,7 +661,6 @@ clearInterval(move);
 
 },16);
 
-/* 保存 */
 note.move = move;
 
 }
@@ -593,13 +668,14 @@ note.move = move;
 /* 判定 */
 function hitNote(laneIndex){
 
+if(paused) return;
+
 const lane =
 lanes[laneIndex];
 
 const laneNotes =
 lane.querySelectorAll(".note");
 
-/* ノーツ無し */
 if(laneNotes.length === 0){
 
 judgeText.innerText =
@@ -620,17 +696,14 @@ laneNotes[0];
 const rect =
 note.getBoundingClientRect();
 
-/* 判定位置 */
 const hitY =
 window.innerHeight - 170;
 
-/* 距離 */
 const diff =
 Math.abs(
 rect.top - hitY
 );
 
-/* PERFECT */
 if(diff < 80){
 
 note.dataset.hit = "true";
@@ -645,7 +718,6 @@ combo++;
 
 score += 100;
 
-/* 更新 */
 comboText.innerText =
 combo;
 
@@ -655,10 +727,8 @@ scoreText.innerText =
 judgeText.innerText =
 "PERFECT ✨";
 
-/* 演出 */
 tapEffect(lane);
 
-/* コンボ */
 if(combo % 10 === 0){
 
 judgeText.innerText =
@@ -681,7 +751,7 @@ combo;
 
 }
 
-/* タップ演出 */
+/* エフェクト */
 function tapEffect(lane){
 
 const effect =
@@ -701,7 +771,80 @@ effect.remove();
 
 }
 
-/* スマホ操作 */
+/* 一時停止 */
+function pauseGame(){
+
+if(!started) return;
+
+if(!paused){
+
+music.pause();
+
+paused = true;
+
+judgeText.innerText =
+"⏸ PAUSE";
+
+}else{
+
+music.play();
+
+paused = false;
+
+gameLoop();
+
+judgeText.innerText =
+"▶ RESUME";
+
+}
+
+}
+
+/* リセット */
+function resetScore(){
+
+score = 0;
+combo = 0;
+miss = 0;
+
+scoreText.innerText =
+"Score : 0";
+
+comboText.innerText =
+"0";
+
+judgeText.innerText =
+"RESET ✨";
+
+}
+
+/* 初級 */
+function setEasyMode(){
+
+noteSpeed = 2;
+noteInterval = 650;
+
+generateNotes();
+
+judgeText.innerText =
+"🌟 EASY MODE";
+
+}
+
+/* 上級 */
+function setHardMode(){
+
+noteSpeed = 5;
+noteInterval = 300;
+
+generateNotes();
+
+judgeText.innerText =
+"🔥 HARD MODE";
+
+}
+
+/* スマホ */
 lanes.forEach(
 (lane,index)=>{
 
@@ -720,7 +863,7 @@ hitNote(index);
 }
 );
 
-/* PC操作 */
+/* PC */
 document.addEventListener(
 "keydown",
 (e)=>{
@@ -752,7 +895,6 @@ music.addEventListener(
 judgeText.innerText =
 "🎉 LIVE CLEAR 🎉";
 
-/* フルコン */
 if(miss === 0){
 
 fullcombo.style.display =
