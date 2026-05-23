@@ -73,11 +73,38 @@ center/cover;
 opacity:0.35;
 }
 
-/* UI */
+/* 🌟 コンボ */
+#combo{
+
+position:absolute;
+
+top:8px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+line-height:1.0;
+
+text-align:center;
+
+z-index:150;
+
+display:block;
+
+min-width:180px;
+
+pointer-events:none;
+
+opacity:0;
+}
+
+/* 🌟 UI */
 .top-ui{
 position:absolute;
 
-top:12px;
+top:50px;
+
 left:0;
 
 width:100%;
@@ -111,12 +138,13 @@ font-size:16px;
 font-weight:bold;
 }
 
-/* ボタン */
+/* 🌟 ボタン */
 .controls{
 
 position:absolute;
 
-top:48px;
+top:88px;
+
 left:50%;
 
 transform:translateX(-50%);
@@ -150,12 +178,13 @@ box-shadow:
 0 0 10px white;
 }
 
-/* 難易度 */
+/* 🌟 難易度 */
 .mode-area{
 
 position:absolute;
 
-top:92px;
+top:132px;
+
 left:50%;
 
 transform:translateX(-50%);
@@ -185,38 +214,11 @@ font-size:12px;
 font-weight:bold;
 }
 
-/* 🌟コンボ */
-#combo{
-
-position:absolute;
-
-/* 上へ */
-top:58px;
-
-left:50%;
-
-transform:translateX(-50%);
-
-line-height:1.0;
-
-text-align:center;
-
-z-index:50;
-
-display:block;
-
-min-width:180px;
-
-pointer-events:none;
-
-opacity:0;
-}
-
-/* 判定 */
+/* 🌟 判定 */
 #judge{
 position:absolute;
 
-top:145px;
+top:190px;
 left:50%;
 
 transform:translateX(-50%);
@@ -263,11 +265,10 @@ text-align:center;
 backdrop-filter:blur(8px);
 }
 
-/* 🌟レーン広化 */
+/* 🌟 レーン */
 .lanes{
 position:absolute;
 
-/* 🌟プレイエリア拡張 */
 bottom:55px;
 
 left:50%;
@@ -294,7 +295,7 @@ border-right:
 2px solid rgba(255,255,255,0.12);
 }
 
-/* 🌟判定ライン下げ */
+/* 🌟 判定ライン */
 .hit-line{
 position:absolute;
 
@@ -310,7 +311,7 @@ box-shadow:
 0 0 40px white;
 }
 
-/* 🌟ノーツ大型化 */
+/* 🌟 ノーツ */
 .note{
 position:absolute;
 
@@ -476,7 +477,7 @@ font-size:14px;
 
 #judge{
 font-size:20px;
-top:145px;
+top:190px;
 }
 
 }
@@ -489,6 +490,9 @@ top:145px;
 <div id="game">
 
 <div class="bg"></div>
+
+<!-- 🌟 コンボ -->
+<div id="combo"></div>
 
 <!-- UI -->
 <div class="top-ui">
@@ -533,9 +537,6 @@ onclick="setHardMode()">
 </button>
 
 </div>
-
-<!-- コンボ -->
-<div id="combo"></div>
 
 <!-- 判定 -->
 <div id="judge">
@@ -668,8 +669,8 @@ let noteInterval = 450;
 
 let notes = [];
 
-/* 🌟コンボ演出 */
-function showComboEffect(){
+/* 🌟 コンボ演出 */
+function showComboEffect(comboBonus){
 
 if(combo < 2){
 
@@ -699,7 +700,7 @@ font-size:15px;
 margin-top:4px;
 letter-spacing:2px;
 ">
-COMBO
+COMBO x${comboBonus}
 </div>
 `;
 
@@ -932,7 +933,7 @@ note.move = move;
 
 }
 
-/* 判定 */
+/* 🌟 判定 */
 function hitNote(laneIndex){
 
 if(paused) return;
@@ -963,39 +964,77 @@ laneNotes[0];
 const rect =
 note.getBoundingClientRect();
 
-/* 🌟下げて押しやすく */
 const hitY =
 window.innerHeight - 170;
 
-const diff =
+/* 🌟 精度 */
+const noteCenter =
+rect.top + (rect.height / 2);
+
+const perfectCenter =
+hitY;
+
+const accuracy =
 Math.abs(
-rect.top - hitY
+noteCenter - perfectCenter
 );
 
 let addScore = 0;
 
-if(diff < 75){
+/* PERFECT+ */
+if(accuracy <= 10){
+
+judgeText.innerText =
+"🌈 PERFECT+ 🌈";
+
+addScore = 500;
+
+navigator.vibrate?.(30);
+
+document.body.style.filter =
+"brightness(1.15)";
+
+setTimeout(()=>{
+
+document.body.style.filter =
+"brightness(1)";
+
+},80);
+
+}
+
+/* PERFECT */
+else if(accuracy <= 30){
 
 judgeText.innerText =
 "PERFECT ✨";
 
 addScore = 300;
 
-}else if(diff < 130){
+}
+
+/* GREAT */
+else if(accuracy <= 60){
 
 judgeText.innerText =
 "GREAT 🔥";
 
 addScore = 200;
 
-}else if(diff < 180){
+}
+
+/* GOOD */
+else if(accuracy <= 100){
 
 judgeText.innerText =
 "GOOD 👍";
 
 addScore = 100;
 
-}else{
+}
+
+/* MISS */
+else{
 
 judgeText.innerText =
 "MISS ❌";
@@ -1009,7 +1048,7 @@ return;
 
 }
 
-/* コンボ倍率 */
+/* 🌟 コンボ倍率 */
 let comboBonus = 1;
 
 if(combo >= 10) comboBonus = 2;
@@ -1021,13 +1060,17 @@ if(combo >= 60) comboBonus = 7;
 if(combo >= 70) comboBonus = 8;
 if(combo >= 80) comboBonus = 9;
 if(combo >= 90) comboBonus = 10;
-if(combo >= 100) comboBonus = 15;
 
-/* スコア */
-score +=
-addScore * comboBonus;
+if(combo >= 100){
 
-/* コンボ */
+comboBonus = 15;
+
+judgeText.innerText =
+"🌈 GOD COMBO 🌈";
+
+}
+
+/* 🌟 コンボ加算 */
 combo++;
 
 if(combo > maxCombo){
@@ -1036,12 +1079,15 @@ maxCombo = combo;
 
 }
 
-/* コンボ表示 */
-showComboEffect();
+/* 🌟 スコア */
+score +=
+addScore * comboBonus;
 
-/* スコア */
 scoreText.innerText =
 "Score : " + score;
+
+/* 🌟 コンボ表示 */
+showComboEffect(comboBonus);
 
 /* ノーツ削除 */
 clearInterval(note.move);
