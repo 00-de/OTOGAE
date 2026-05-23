@@ -34,7 +34,6 @@ overscroll-behavior:none;
 background:black;
 }
 
-/* 全体 */
 #game{
 position:relative;
 width:100vw;
@@ -51,7 +50,6 @@ to bottom,
 color:white;
 }
 
-/* 背景 */
 .bg{
 position:absolute;
 width:100%;
@@ -64,7 +62,6 @@ center/cover;
 opacity:0.35;
 }
 
-/* 上UI */
 .top-ui{
 position:absolute;
 
@@ -82,7 +79,6 @@ align-items:center;
 z-index:100;
 }
 
-/* タイトル */
 .song-title{
 
 font-size:18px;
@@ -95,16 +91,14 @@ overflow:hidden;
 text-overflow:ellipsis;
 
 max-width:65%;
-
 }
 
-/* スコア */
 .score{
 font-size:18px;
 font-weight:bold;
 }
 
-/* ボタン */
+/* コントロール */
 .controls{
 
 position:absolute;
@@ -127,7 +121,6 @@ width:95%;
 z-index:100;
 }
 
-/* ボタン */
 .control-btn{
 
 padding:8px 14px;
@@ -168,7 +161,6 @@ width:95%;
 z-index:100;
 }
 
-/* 難易度ボタン */
 .mode-btn{
 
 padding:8px 14px;
@@ -237,7 +229,6 @@ display:flex;
 z-index:10;
 }
 
-/* レーン */
 .lane{
 flex:1;
 position:relative;
@@ -317,7 +308,7 @@ transform:scaleY(2);
 
 }
 
-/* スタートメニュー */
+/* スタート画面 */
 .start-menu{
 
 position:absolute;
@@ -334,10 +325,8 @@ flex-direction:column;
 gap:15px;
 
 z-index:300;
-
 }
 
-/* スタートボタン */
 .menu-btn{
 
 padding:20px 35px;
@@ -353,7 +342,6 @@ color:#333;
 
 box-shadow:
 0 0 25px white;
-
 }
 
 /* フルコン */
@@ -427,7 +415,7 @@ Score : 0
 
 </div>
 
-<!-- ボタン -->
+<!-- コントロール -->
 <div class="controls">
 
 <button class="control-btn"
@@ -472,7 +460,7 @@ READY
 🌟 FULL COMBO 🌟
 </div>
 
-<!-- スタート画面 -->
+<!-- スタート -->
 <div class="start-menu">
 
 <button class="menu-btn"
@@ -559,7 +547,7 @@ document.getElementById("fullcombo");
 const lanes =
 document.querySelectorAll(".lane");
 
-/* スコア */
+/* 状態 */
 let combo = 0;
 let score = 0;
 let miss = 0;
@@ -574,7 +562,7 @@ let noteInterval = 450;
 /* ノーツ */
 let notes = [];
 
-/* 曲読み込み後 */
+/* 曲読み込み */
 music.addEventListener(
 "loadedmetadata",
 ()=>{
@@ -635,11 +623,7 @@ Math.random() * 4
 /* ゲーム開始 */
 function startGame(){
 
-if(started) return;
-
 started = true;
-
-generateNotes();
 
 document.querySelector(
 ".start-menu"
@@ -648,6 +632,8 @@ document.querySelector(
 music.currentTime = 0;
 
 music.play();
+
+generateNotes();
 
 gameLoop();
 
@@ -839,7 +825,7 @@ comboBonus = 2;
 
 }
 
-/* スコア */
+/* 加点 */
 score +=
 addScore * comboBonus;
 
@@ -951,26 +937,80 @@ judgeText.innerText =
 /* 初級 */
 function setEasyMode(){
 
+music.pause();
+
+music.currentTime = 0;
+
+document.querySelectorAll(".note")
+.forEach(note=>{
+
+clearInterval(note.move);
+
+note.remove();
+
+});
+
+score = 0;
+combo = 0;
+miss = 0;
+
+scoreText.innerText =
+"Score : 0";
+
+comboText.innerText =
+"0";
+
 noteSpeed = 2;
 noteInterval = 650;
 
 generateNotes();
 
+started = false;
+
 judgeText.innerText =
 "🌟 EASY MODE";
+
+startGame();
 
 }
 
 /* 上級 */
 function setHardMode(){
 
+music.pause();
+
+music.currentTime = 0;
+
+document.querySelectorAll(".note")
+.forEach(note=>{
+
+clearInterval(note.move);
+
+note.remove();
+
+});
+
+score = 0;
+combo = 0;
+miss = 0;
+
+scoreText.innerText =
+"Score : 0";
+
+comboText.innerText =
+"0";
+
 noteSpeed = 5;
 noteInterval = 300;
 
 generateNotes();
 
+started = false;
+
 judgeText.innerText =
 "🔥 HARD MODE";
+
+startGame();
 
 }
 
