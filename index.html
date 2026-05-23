@@ -8,7 +8,9 @@ content="
 width=device-width,
 initial-scale=1.0,
 maximum-scale=1.0,
-user-scalable=no
+minimum-scale=1.0,
+user-scalable=no,
+viewport-fit=cover
 ">
 
 <title>DayDream Beats!! ONLINE</title>
@@ -20,18 +22,29 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:sans-serif;
+-webkit-tap-highlight-color:transparent;
 }
 
 html,body{
 width:100%;
 height:100%;
 overflow:hidden;
+
 background:black;
 
-touch-action:none;
+touch-action:manipulation;
 overscroll-behavior:none;
+
+-webkit-user-select:none;
+user-select:none;
 }
 
+body{
+position:fixed;
+inset:0;
+}
+
+/* ゲーム */
 #game{
 position:relative;
 width:100vw;
@@ -136,6 +149,8 @@ font-weight:bold;
 
 box-shadow:
 0 0 10px white;
+
+touch-action:manipulation;
 }
 
 /* 難易度 */
@@ -171,6 +186,8 @@ background:#ffffffcc;
 
 font-size:13px;
 font-weight:bold;
+
+touch-action:manipulation;
 }
 
 /* コンボ */
@@ -214,15 +231,18 @@ text-shadow:
 
 position:absolute;
 
-right:10px;
-top:320px;
+left:50%;
+bottom:10px;
 
-width:170px;
+transform:translateX(-50%);
+
+width:92%;
+max-width:520px;
 
 background:
-rgba(0,0,0,0.6);
+rgba(0,0,0,0.55);
 
-padding:12px;
+padding:10px;
 
 border-radius:15px;
 
@@ -231,13 +251,17 @@ font-size:12px;
 z-index:200;
 
 line-height:1.6;
+
+text-align:center;
+
+backdrop-filter:blur(8px);
 }
 
 /* レーン */
 .lanes{
 position:absolute;
 
-bottom:0;
+bottom:110px;
 left:50%;
 
 transform:translateX(-50%);
@@ -250,6 +274,7 @@ height:100%;
 display:flex;
 }
 
+/* レーン */
 .lane{
 flex:1;
 position:relative;
@@ -259,6 +284,8 @@ border-left:
 
 border-right:
 2px solid rgba(255,255,255,0.15);
+
+touch-action:manipulation;
 }
 
 /* 判定ライン */
@@ -348,6 +375,7 @@ gap:15px;
 z-index:300;
 }
 
+/* スタートボタン */
 .menu-btn{
 
 padding:20px 35px;
@@ -363,6 +391,8 @@ color:#333;
 
 box-shadow:
 0 0 25px white;
+
+touch-action:manipulation;
 }
 
 /* フルコン */
@@ -387,6 +417,39 @@ z-index:300;
 text-shadow:
 0 0 25px gold,
 0 0 50px gold;
+}
+
+/* スマホ */
+@media(max-width:600px){
+
+.song-title{
+font-size:15px;
+max-width:52%;
+}
+
+.score{
+font-size:15px;
+}
+
+#combo{
+font-size:42px;
+top:170px;
+}
+
+#judge{
+font-size:24px;
+top:230px;
+}
+
+.menu-btn{
+font-size:20px;
+padding:18px 28px;
+}
+
+#ranking{
+font-size:11px;
+}
+
 }
 
 </style>
@@ -454,7 +517,7 @@ READY
 
 <!-- ランキング -->
 <div id="ranking">
-🏆 LOADING...
+🏆 TODAY BEST
 </div>
 
 <!-- フルコン -->
@@ -522,23 +585,15 @@ limit
 /* Firebase設定 */
 const firebaseConfig = {
 
-/* Firebaseから貼る */
-
 apiKey:"ここ",
-
 authDomain:"ここ",
-
 projectId:"ここ",
-
 storageBucket:"ここ",
-
 messagingSenderId:"ここ",
-
 appId:"ここ"
 
 };
 
-/* 初期化 */
 const app =
 initializeApp(firebaseConfig);
 
@@ -556,6 +611,32 @@ window.limit = limit;
 </script>
 
 <script>
+
+/* 拡大防止 */
+document.addEventListener(
+"dblclick",
+e=>e.preventDefault(),
+{ passive:false }
+);
+
+document.addEventListener(
+"gesturestart",
+e=>e.preventDefault()
+);
+
+document.addEventListener(
+"touchmove",
+function(e){
+
+if(e.scale !== 1){
+
+e.preventDefault();
+
+}
+
+},
+{ passive:false }
+);
 
 /* 音 */
 const music =
@@ -629,7 +710,6 @@ music.pause();
 
 music.currentTime = 0;
 
-/* ノーツ削除 */
 document.querySelectorAll(".note")
 .forEach(note=>{
 
@@ -639,7 +719,6 @@ note.remove();
 
 });
 
-/* リセット */
 score = 0;
 combo = 0;
 miss = 0;
@@ -795,7 +874,7 @@ const rect =
 note.getBoundingClientRect();
 
 const hitY =
-window.innerHeight - 170;
+window.innerHeight - 250;
 
 const diff =
 Math.abs(
@@ -804,21 +883,21 @@ rect.top - hitY
 
 let addScore = 0;
 
-if(diff < 60){
+if(diff < 70){
 
 judgeText.innerText =
 "PERFECT ✨";
 
 addScore = 300;
 
-}else if(diff < 100){
+}else if(diff < 120){
 
 judgeText.innerText =
 "GREAT 🔥";
 
 addScore = 200;
 
-}else if(diff < 140){
+}else if(diff < 170){
 
 judgeText.innerText =
 "GOOD 👍";
@@ -875,7 +954,7 @@ tapEffect(lane);
 
 }
 
-/* エフェクト */
+/* 演出 */
 function tapEffect(lane){
 
 const effect =
@@ -978,7 +1057,7 @@ hitNote(index);
 }
 );
 
-/* キーボード */
+/* PC */
 document.addEventListener(
 "keydown",
 (e)=>{
@@ -1046,7 +1125,7 @@ const data = doc.data();
 
 html +=
 `
-${data.name}<br>
+${data.name}
 ${data.score}<br><br>
 `;
 
