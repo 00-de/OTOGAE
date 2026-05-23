@@ -317,8 +317,9 @@ transform:scaleY(2);
 
 }
 
-/* スタート */
-.start-btn{
+/* スタートメニュー */
+.start-menu{
+
 position:absolute;
 
 top:50%;
@@ -327,9 +328,21 @@ left:50%;
 transform:
 translate(-50%,-50%);
 
-padding:22px 45px;
+display:flex;
+flex-direction:column;
 
-font-size:28px;
+gap:15px;
+
+z-index:300;
+
+}
+
+/* スタートボタン */
+.menu-btn{
+
+padding:20px 35px;
+
+font-size:24px;
 font-weight:bold;
 
 border:none;
@@ -338,10 +351,9 @@ border-radius:20px;
 background:white;
 color:#333;
 
-z-index:200;
-
 box-shadow:
 0 0 25px white;
+
 }
 
 /* フルコン */
@@ -460,11 +472,20 @@ READY
 🌟 FULL COMBO 🌟
 </div>
 
-<!-- スタート -->
-<button class="start-btn"
+<!-- スタート画面 -->
+<div class="start-menu">
+
+<button class="menu-btn"
 onclick="startGame()">
-START LIVE
+▶ ゲームスタート
 </button>
+
+<button class="menu-btn"
+onclick="previewSong()">
+🎵 曲を再生
+</button>
+
+</div>
 
 <!-- レーン -->
 <div class="lanes">
@@ -563,6 +584,18 @@ generateNotes();
 }
 );
 
+/* 曲だけ再生 */
+function previewSong(){
+
+music.currentTime = 0;
+
+music.play();
+
+judgeText.innerText =
+"🎵 NOW PLAYING";
+
+}
+
 /* 譜面生成 */
 function generateNotes(){
 
@@ -609,8 +642,10 @@ started = true;
 generateNotes();
 
 document.querySelector(
-".start-btn"
+".start-menu"
 ).style.display = "none";
+
+music.currentTime = 0;
 
 music.play();
 
@@ -718,7 +753,6 @@ lanes[laneIndex];
 const laneNotes =
 lane.querySelectorAll(".note");
 
-/* ノーツなし */
 if(laneNotes.length === 0){
 
 judgeText.innerText =
@@ -739,17 +773,14 @@ laneNotes[0];
 const rect =
 note.getBoundingClientRect();
 
-/* 判定位置 */
 const hitY =
 window.innerHeight - 170;
 
-/* 判定差 */
 const diff =
 Math.abs(
 rect.top - hitY
 );
 
-/* 加点 */
 let addScore = 0;
 
 /* PERFECT */
@@ -812,13 +843,11 @@ comboBonus = 2;
 score +=
 addScore * comboBonus;
 
-/* コンボ */
 combo++;
 
 comboText.innerText =
 combo;
 
-/* スコア表示 */
 scoreText.innerText =
 "Score : " + score;
 
@@ -831,7 +860,7 @@ note.move
 
 note.remove();
 
-/* タップ演出 */
+/* 演出 */
 tapEffect(lane);
 
 /* コンボ演出 */
@@ -843,7 +872,6 @@ combo +
 
 }
 
-/* 高コンボ */
 if(combo >= 50){
 
 judgeText.innerText =
@@ -853,7 +881,7 @@ judgeText.innerText =
 
 }
 
-/* タップ演出 */
+/* エフェクト */
 function tapEffect(lane){
 
 const effect =
@@ -946,7 +974,7 @@ judgeText.innerText =
 
 }
 
-/* スマホ操作 */
+/* スマホ */
 lanes.forEach(
 (lane,index)=>{
 
@@ -965,7 +993,7 @@ hitNote(index);
 }
 );
 
-/* PC操作 */
+/* PC */
 document.addEventListener(
 "keydown",
 (e)=>{
