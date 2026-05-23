@@ -32,7 +32,7 @@ overflow:hidden;
 background:
 linear-gradient(
 to bottom,
-#4db8ff,
+#58c6ff,
 #001d3d
 );
 
@@ -44,6 +44,7 @@ color:white;
 position:absolute;
 width:100%;
 height:100%;
+
 background:
 url('bg.jpg')
 center/cover;
@@ -56,7 +57,9 @@ opacity:0.35;
 position:absolute;
 top:20px;
 left:0;
+
 width:100%;
+
 padding:0 20px;
 
 display:flex;
@@ -66,12 +69,16 @@ align-items:center;
 z-index:50;
 }
 
+/* 曲タイトル */
 .song-title{
 font-size:22px;
 font-weight:bold;
-text-shadow:0 0 10px black;
+
+text-shadow:
+0 0 10px black;
 }
 
+/* スコア */
 .score{
 font-size:22px;
 font-weight:bold;
@@ -80,8 +87,10 @@ font-weight:bold;
 /* コンボ */
 #combo{
 position:absolute;
+
 top:90px;
 left:50%;
+
 transform:translateX(-50%);
 
 font-size:52px;
@@ -90,14 +99,16 @@ font-weight:bold;
 z-index:50;
 
 text-shadow:
-0 0 15px white;
+0 0 20px white;
 }
 
 /* 判定 */
 #judge{
 position:absolute;
+
 top:160px;
 left:50%;
+
 transform:translateX(-50%);
 
 font-size:38px;
@@ -112,12 +123,15 @@ text-shadow:
 /* レーン */
 .lanes{
 position:absolute;
+
 bottom:0;
 left:50%;
+
 transform:translateX(-50%);
 
 width:95%;
 max-width:520px;
+
 height:100%;
 
 display:flex;
@@ -125,6 +139,7 @@ display:flex;
 z-index:10;
 }
 
+/* レーン */
 .lane{
 flex:1;
 position:relative;
@@ -139,6 +154,7 @@ border-right:
 /* 判定ライン */
 .hit-line{
 position:absolute;
+
 bottom:140px;
 
 width:100%;
@@ -174,7 +190,7 @@ box-shadow:
 0 0 35px #8ce8ff;
 }
 
-/* タップエフェクト */
+/* タップ演出 */
 .tap-effect{
 position:absolute;
 
@@ -203,7 +219,7 @@ transform:scaleY(2);
 
 }
 
-/* スタート */
+/* スタートボタン */
 .start-btn{
 position:absolute;
 
@@ -385,42 +401,30 @@ let miss = 0;
 /* 開始フラグ */
 let started = false;
 
-/* 譜面 */
-const notes = [
+/* ノーツ */
+const notes = [];
 
-{time:1000,lane:0},
-{time:1500,lane:1},
-{time:2000,lane:2},
-{time:2500,lane:3},
+/* 曲最後まで自動生成 */
+for(
+let i = 1000;
+i < 180000;
+i += 450
+){
 
-{time:3200,lane:1},
-{time:3600,lane:2},
-{time:4000,lane:0},
-{time:4500,lane:3},
+notes.push({
 
-{time:5200,lane:0},
-{time:5600,lane:1},
-{time:6000,lane:2},
-{time:6500,lane:3},
+time:i,
 
-{time:7200,lane:2},
-{time:7600,lane:1},
-{time:8000,lane:0},
-{time:8500,lane:3},
+lane:
+Math.floor(
+Math.random() * 4
+)
 
-{time:9200,lane:1},
-{time:9600,lane:2},
-{time:10000,lane:3},
-{time:10400,lane:0},
+});
 
-{time:11200,lane:0},
-{time:11600,lane:1},
-{time:12000,lane:2},
-{time:12400,lane:3}
+}
 
-];
-
-/* ゲーム開始 */
+/* 開始 */
 function startGame(){
 
 if(started) return;
@@ -457,7 +461,7 @@ notes.forEach(note=>{
 
 if(
 !note.spawned &&
-currentTime >= note.time - 2000
+currentTime >= note.time - 2200
 ){
 
 createNote(note);
@@ -468,14 +472,18 @@ note.spawned = true;
 
 });
 
-/* 次フレーム */
+/* 曲終了まで継続 */
+if(!music.paused){
+
 requestAnimationFrame(
 gameLoop
 );
 
 }
 
-/* ノーツ作成 */
+}
+
+/* ノーツ生成 */
 function createNote(noteData){
 
 const lane =
@@ -493,7 +501,7 @@ lane.appendChild(note);
 /* 初期位置 */
 let pos = -30;
 
-/* 落下速度 */
+/* 速度 */
 const speed = 3;
 
 /* 落下 */
@@ -504,7 +512,7 @@ pos += speed;
 note.style.top =
 pos + "px";
 
-/* 画面下で削除 */
+/* 画面下 */
 if(pos >= window.innerHeight){
 
 if(
@@ -523,6 +531,7 @@ judgeText.innerText =
 
 }
 
+/* 削除 */
 note.remove();
 
 clearInterval(move);
@@ -536,7 +545,7 @@ note.move = move;
 
 }
 
-/* ノーツ判定 */
+/* 判定 */
 function hitNote(laneIndex){
 
 const lane =
@@ -591,7 +600,7 @@ combo++;
 
 score += 100;
 
-/* UI更新 */
+/* 更新 */
 comboText.innerText =
 combo;
 
@@ -601,7 +610,7 @@ scoreText.innerText =
 judgeText.innerText =
 "PERFECT ✨";
 
-/* エフェクト */
+/* 演出 */
 tapEffect(lane);
 
 /* コンボ */
@@ -663,7 +672,7 @@ hitNote(index);
 }
 );
 
-/* PC操作 */
+/* PCキー */
 document.addEventListener(
 "keydown",
 (e)=>{
