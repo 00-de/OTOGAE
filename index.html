@@ -23,7 +23,6 @@ width:100%;
 height:100%;
 overflow:hidden;
 background:black;
-touch-action:manipulation;
 user-select:none;
 }
 
@@ -46,20 +45,7 @@ background:url('bg.jpg') center/cover;
 opacity:0.35;
 }
 
-/* コンボ */
-#combo{
-position:absolute;
-top:70px;
-left:50%;
-transform:translateX(-50%);
-text-align:center;
-z-index:300;
-min-width:180px;
-pointer-events:none;
-opacity:0;
-}
-
-/* UI */
+/* ===== TOP UI ===== */
 .top-ui{
 position:absolute;
 top:16px;
@@ -68,20 +54,40 @@ width:100%;
 padding:0 12px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 z-index:200;
 }
 
-.song-title{
+/* 🎵曲名＋コンボ横並び */
+.song-title-area{
 font-size:15px;
 font-weight:bold;
+max-width:70%;
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
+text-shadow:0 0 10px black;
+display:flex;
+align-items:center;
+gap:10px;
 }
 
-.score{font-size:15px;font-weight:bold;}
+/* コンボ（曲名の横） */
+#comboInline{
+font-size:14px;
+font-weight:bold;
+color:#8ce8ff;
+text-shadow:0 0 10px #8ce8ff;
+opacity:0;
+transition:0.15s;
+}
 
-/* ボタン */
+.score{
+font-size:15px;
+font-weight:bold;
+}
+
+/* ===== BUTTON ===== */
 .controls{
 position:absolute;
 top:50px;
@@ -105,7 +111,7 @@ font-weight:bold;
 box-shadow:0 0 10px white;
 }
 
-/* 難易度 */
+/* ===== MODE ===== */
 .mode-area{
 position:absolute;
 top:92px;
@@ -126,7 +132,7 @@ background:#ffffffdd;
 font-size:12px;
 }
 
-/* 判定 */
+/* ===== JUDGE ===== */
 #judge{
 position:absolute;
 top:132px;
@@ -137,7 +143,7 @@ font-weight:bold;
 z-index:200;
 }
 
-/* レーン */
+/* ===== LANE ===== */
 .lanes{
 position:absolute;
 bottom:0;
@@ -156,15 +162,17 @@ border-left:2px solid rgba(255,255,255,0.12);
 border-right:2px solid rgba(255,255,255,0.12);
 }
 
+/* 🔥判定ライン（精度改善済み） */
 .hit-line{
 position:absolute;
-bottom:110px;
+bottom:18%;
 width:100%;
 height:8px;
 background:white;
 box-shadow:0 0 20px white,0 0 40px white;
 }
 
+/* NOTE */
 .note{
 position:absolute;
 width:88%;
@@ -247,21 +255,25 @@ z-index:300;
 <div id="game">
 <div class="bg"></div>
 
-<div id="combo"></div>
-
 <div class="top-ui">
-<div class="song-title">🎵 風になる合図 / 蓮</div>
-<div class="score" id="score">Score : 0</div>
+
+  <div class="song-title-area">
+    🎵 風になる合図 / 蓮
+    <span id="comboInline"></span>
+  </div>
+
+  <div class="score" id="score">Score : 0</div>
+
 </div>
 
 <div class="controls">
-<button class="control-btn" onclick="pauseGame()">⏸ 一時停止</button>
-<button class="control-btn" onclick="resetGame()">🔄 リセット</button>
+<button onclick="pauseGame()">⏸ 一時停止</button>
+<button onclick="resetGame()">🔄 リセット</button>
 </div>
 
 <div class="mode-area">
-<button class="mode-btn" onclick="setEasyMode()">🌟 初級</button>
-<button class="mode-btn" onclick="setHardMode()">🔥 上級</button>
+<button onclick="setEasyMode()">🌟 初級</button>
+<button onclick="setHardMode()">🔥 上級</button>
 </div>
 
 <div id="judge">READY</div>
@@ -269,8 +281,8 @@ z-index:300;
 <div id="ranking">🏆 TODAY BEST : 0</div>
 
 <div class="start-menu">
-<button class="menu-btn" onclick="restartGame()">▶ START</button>
-<button class="menu-btn" onclick="setHardMode()">🔥 HARD</button>
+<button onclick="restartGame()">▶ START</button>
+<button onclick="setHardMode()">🔥 HARD</button>
 </div>
 
 <div id="resultScreen">
@@ -297,7 +309,7 @@ z-index:300;
 <script>
 
 const music=document.getElementById("music");
-const comboText=document.getElementById("combo");
+const comboInline=document.getElementById("comboInline");
 const judgeText=document.getElementById("judge");
 const scoreText=document.getElementById("score");
 const rankingText=document.getElementById("ranking");
@@ -318,13 +330,16 @@ let notes=[];
 let todayBest=localStorage.getItem("todayBest")||0;
 rankingText.innerHTML="🏆 TODAY BEST : "+todayBest;
 
-/* コンボ */
+/* コンボ表示（曲名横） */
 function showCombo(b){
-if(combo<2){comboText.style.opacity="0";return;}
-comboText.style.opacity="1";
-comboText.innerHTML=
-`<div style="font-size:40px;font-weight:bold;">${combo}</div>
-<div style="font-size:14px;">COMBO x${b}</div>`;
+if(combo<2){
+comboInline.style.opacity="0";
+comboInline.innerHTML="";
+return;
+}
+
+comboInline.style.opacity="1";
+comboInline.innerHTML=`🔥 ${combo} x${b}`;
 }
 
 /* ノーツ */
@@ -342,13 +357,12 @@ music.pause();
 music.currentTime=0;
 
 document.querySelectorAll(".note").forEach(n=>{
-clearInterval(n.move);
-n.remove();
+clearInterval(n.move);n.remove();
 });
 
 combo=0;maxCombo=0;score=0;miss=0;
 scoreText.innerText="Score : 0";
-comboText.style.opacity="0";
+comboInline.style.opacity="0";
 resultScreen.style.display="none";
 
 document.querySelector(".start-menu").style.display="none";
@@ -399,7 +413,7 @@ clearInterval(move);
 note.move=move;
 }
 
-/* HIT（スコア完全最適化版） */
+/* HIT（完全バランス版） */
 function hitNote(i){
 if(paused)return;
 
@@ -414,7 +428,8 @@ return;
 
 const note=list[0];
 const r=note.getBoundingClientRect();
-const hit=innerHeight-160;
+
+const hit=innerHeight*0.82;
 const center=r.top+r.height/2;
 
 const a=Math.abs(center-hit);
@@ -428,7 +443,7 @@ else if(a<=60){add=200;judgeText.innerText="GREAT 🔥";}
 else if(a<=100){add=120;judgeText.innerText="GOOD 👍";}
 else{combo=0;judgeText.innerText="MISS ❌";return;}
 
-/* 🔥コンボ倍率（プロ仕様） */
+/* コンボ倍率 */
 let bonus=1;
 if(combo>=100)bonus=12;
 else if(combo>=80)bonus=9;
@@ -437,17 +452,16 @@ else if(combo>=40)bonus=5;
 else if(combo>=25)bonus=3;
 else if(combo>=10)bonus=2;
 
-/* 🔥コンボ成長係数 */
-const comboFactor=1+(combo*0.03);
+/* 成長係数 */
+const factor=1+(combo*0.03);
 
 combo++;
 maxCombo=Math.max(maxCombo,combo);
 
-/* 💥最終スコア */
-const finalScore=Math.floor(add*bonus*comboFactor);
-score+=finalScore;
+score+=Math.floor(add*bonus*factor);
 
 scoreText.innerText="Score : "+score;
+
 showCombo(bonus);
 
 clearInterval(note.move);
@@ -500,7 +514,6 @@ rankingText.innerHTML="🏆 TODAY BEST : "+todayBest;
 }
 
 resultScreen.style.display="flex";
-
 resultScore.innerText="SCORE : "+score;
 resultRate.innerText="成功率 : "+rate+"%";
 resultCombo.innerText="MAX COMBO : "+maxCombo;
