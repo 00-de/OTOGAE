@@ -186,12 +186,14 @@ font-size:13px;
 font-weight:bold;
 }
 
-/* コンボ */
+/* 🌟コンボ */
 #combo{
 
 position:absolute;
 
-top:180px;
+/* 邪魔にならない位置 */
+top:85px;
+
 left:50%;
 
 transform:translateX(-50%);
@@ -200,11 +202,15 @@ line-height:1.0;
 
 text-align:center;
 
-z-index:999;
+z-index:50;
 
 display:block;
 
-min-width:220px;
+min-width:180px;
+
+pointer-events:none;
+
+font-size:0.8em;
 
 opacity:0;
 }
@@ -213,7 +219,7 @@ opacity:0;
 #judge{
 position:absolute;
 
-top:300px;
+top:250px;
 left:50%;
 
 transform:translateX(-50%);
@@ -470,7 +476,7 @@ font-size:15px;
 
 #judge{
 font-size:22px;
-top:290px;
+top:240px;
 }
 
 }
@@ -528,7 +534,7 @@ onclick="setHardMode()">
 
 </div>
 
-<!-- コンボ -->
+<!-- 🌟コンボ -->
 <div id="combo"></div>
 
 <!-- 判定 -->
@@ -662,7 +668,7 @@ let noteInterval = 450;
 
 let notes = [];
 
-/* 🌟 コンボ演出 */
+/* 🌟コンボ演出 */
 function showComboEffect(){
 
 if(combo < 2){
@@ -681,7 +687,7 @@ comboText.innerHTML =
 
 `
 <div style="
-font-size:58px;
+font-size:42px;
 font-weight:bold;
 line-height:1;
 ">
@@ -689,9 +695,9 @@ ${combo}
 </div>
 
 <div style="
-font-size:22px;
-margin-top:5px;
-letter-spacing:3px;
+font-size:16px;
+margin-top:4px;
+letter-spacing:2px;
 ">
 COMBO
 </div>
@@ -744,7 +750,7 @@ opacity:0.5
 },
 {
 transform:
-"translateX(-50%) scale(1.2)",
+"translateX(-50%) scale(1.15)",
 opacity:1
 },
 {
@@ -755,7 +761,7 @@ opacity:1
 ],
 
 {
-duration:220
+duration:180
 }
 
 );
@@ -1005,45 +1011,16 @@ return;
 /* コンボ倍率 */
 let comboBonus = 1;
 
-if(combo >= 10){
-comboBonus = 2;
-}
-
-if(combo >= 20){
-comboBonus = 3;
-}
-
-if(combo >= 30){
-comboBonus = 4;
-}
-
-if(combo >= 40){
-comboBonus = 5;
-}
-
-if(combo >= 50){
-comboBonus = 6;
-}
-
-if(combo >= 60){
-comboBonus = 7;
-}
-
-if(combo >= 70){
-comboBonus = 8;
-}
-
-if(combo >= 80){
-comboBonus = 9;
-}
-
-if(combo >= 90){
-comboBonus = 10;
-}
-
-if(combo >= 100){
-comboBonus = 15;
-}
+if(combo >= 10) comboBonus = 2;
+if(combo >= 20) comboBonus = 3;
+if(combo >= 30) comboBonus = 4;
+if(combo >= 40) comboBonus = 5;
+if(combo >= 50) comboBonus = 6;
+if(combo >= 60) comboBonus = 7;
+if(combo >= 70) comboBonus = 8;
+if(combo >= 80) comboBonus = 9;
+if(combo >= 90) comboBonus = 10;
+if(combo >= 100) comboBonus = 15;
 
 /* スコア */
 score +=
