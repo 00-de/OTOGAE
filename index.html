@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport"
@@ -27,11 +26,10 @@ html,body{
 width:100%;
 height:100%;
 overflow:hidden;
+background:black;
 
 touch-action:none;
 overscroll-behavior:none;
-
-background:black;
 }
 
 #game{
@@ -50,6 +48,7 @@ to bottom,
 color:white;
 }
 
+/* 背景 */
 .bg{
 position:absolute;
 width:100%;
@@ -62,6 +61,7 @@ center/cover;
 opacity:0.35;
 }
 
+/* 上UI */
 .top-ui{
 position:absolute;
 
@@ -84,13 +84,14 @@ z-index:100;
 font-size:18px;
 font-weight:bold;
 
-text-shadow:0 0 10px black;
-
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
 
-max-width:65%;
+max-width:60%;
+
+text-shadow:
+0 0 10px black;
 }
 
 .score{
@@ -98,7 +99,7 @@ font-size:18px;
 font-weight:bold;
 }
 
-/* コントロール */
+/* ボタン */
 .controls{
 
 position:absolute;
@@ -112,7 +113,6 @@ display:flex;
 flex-wrap:wrap;
 
 justify-content:center;
-align-items:center;
 
 gap:8px;
 
@@ -131,9 +131,8 @@ border-radius:12px;
 background:white;
 color:#222;
 
-font-weight:bold;
-
 font-size:13px;
+font-weight:bold;
 
 box-shadow:
 0 0 10px white;
@@ -144,7 +143,7 @@ box-shadow:
 
 position:absolute;
 
-top:125px;
+top:120px;
 left:50%;
 
 transform:translateX(-50%);
@@ -170,15 +169,15 @@ border-radius:12px;
 
 background:#ffffffcc;
 
-font-weight:bold;
 font-size:13px;
+font-weight:bold;
 }
 
 /* コンボ */
 #combo{
 position:absolute;
 
-top:190px;
+top:180px;
 left:50%;
 
 transform:translateX(-50%);
@@ -196,12 +195,12 @@ text-shadow:
 #judge{
 position:absolute;
 
-top:255px;
+top:245px;
 left:50%;
 
 transform:translateX(-50%);
 
-font-size:35px;
+font-size:32px;
 font-weight:bold;
 
 z-index:100;
@@ -225,10 +224,9 @@ max-width:520px;
 height:100%;
 
 display:flex;
-
-z-index:10;
 }
 
+/* レーン */
 .lane{
 flex:1;
 position:relative;
@@ -327,6 +325,7 @@ gap:15px;
 z-index:300;
 }
 
+/* スタートボタン */
 .menu-btn{
 
 padding:20px 35px;
@@ -464,13 +463,8 @@ READY
 <div class="start-menu">
 
 <button class="menu-btn"
-onclick="startGame()">
-▶ ゲームスタート
-</button>
-
-<button class="menu-btn"
-onclick="previewSong()">
-🎵 曲を再生
+onclick="restartGame()">
+▶ 再生してスタート
 </button>
 
 </div>
@@ -572,18 +566,6 @@ generateNotes();
 }
 );
 
-/* 曲だけ再生 */
-function previewSong(){
-
-music.currentTime = 0;
-
-music.play();
-
-judgeText.innerText =
-"🎵 NOW PLAYING";
-
-}
-
 /* 譜面生成 */
 function generateNotes(){
 
@@ -620,6 +602,49 @@ Math.random() * 4
 
 }
 
+/* 再生して開始 */
+function restartGame(){
+
+music.pause();
+
+music.currentTime = 0;
+
+/* ノーツ削除 */
+document.querySelectorAll(".note")
+.forEach(note=>{
+
+clearInterval(note.move);
+
+note.remove();
+
+});
+
+/* リセット */
+score = 0;
+combo = 0;
+miss = 0;
+
+scoreText.innerText =
+"Score : 0";
+
+comboText.innerText =
+"0";
+
+fullcombo.style.display =
+"none";
+
+judgeText.innerText =
+"START!! 🎵";
+
+/* 状態 */
+started = false;
+paused = false;
+
+/* 開始 */
+startGame();
+
+}
+
 /* ゲーム開始 */
 function startGame(){
 
@@ -628,8 +653,6 @@ started = true;
 document.querySelector(
 ".start-menu"
 ).style.display = "none";
-
-music.currentTime = 0;
 
 music.play();
 
@@ -825,7 +848,7 @@ comboBonus = 2;
 
 }
 
-/* 加点 */
+/* スコア */
 score +=
 addScore * comboBonus;
 
@@ -840,9 +863,7 @@ scoreText.innerText =
 /* ノーツ削除 */
 note.dataset.hit = "true";
 
-clearInterval(
-note.move
-);
+clearInterval(note.move);
 
 note.remove();
 
@@ -853,8 +874,7 @@ tapEffect(lane);
 if(combo % 10 === 0){
 
 judgeText.innerText =
-combo +
-" COMBO 🔥";
+combo + " COMBO 🔥";
 
 }
 
@@ -937,84 +957,30 @@ judgeText.innerText =
 /* 初級 */
 function setEasyMode(){
 
-music.pause();
-
-music.currentTime = 0;
-
-document.querySelectorAll(".note")
-.forEach(note=>{
-
-clearInterval(note.move);
-
-note.remove();
-
-});
-
-score = 0;
-combo = 0;
-miss = 0;
-
-scoreText.innerText =
-"Score : 0";
-
-comboText.innerText =
-"0";
-
 noteSpeed = 2;
 noteInterval = 650;
 
-generateNotes();
-
-started = false;
+restartGame();
 
 judgeText.innerText =
 "🌟 EASY MODE";
-
-startGame();
 
 }
 
 /* 上級 */
 function setHardMode(){
 
-music.pause();
-
-music.currentTime = 0;
-
-document.querySelectorAll(".note")
-.forEach(note=>{
-
-clearInterval(note.move);
-
-note.remove();
-
-});
-
-score = 0;
-combo = 0;
-miss = 0;
-
-scoreText.innerText =
-"Score : 0";
-
-comboText.innerText =
-"0";
-
 noteSpeed = 5;
 noteInterval = 300;
 
-generateNotes();
-
-started = false;
+restartGame();
 
 judgeText.innerText =
 "🔥 HARD MODE";
 
-startGame();
-
 }
 
-/* スマホ */
+/* スマホ操作 */
 lanes.forEach(
 (lane,index)=>{
 
@@ -1033,7 +999,7 @@ hitNote(index);
 }
 );
 
-/* PC */
+/* PC操作 */
 document.addEventListener(
 "keydown",
 (e)=>{
