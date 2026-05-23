@@ -13,7 +13,7 @@ user-scalable=no,
 viewport-fit=cover
 ">
 
-<title>DayDream Beats!! ONLINE</title>
+<title>DayDream Beats!! ULTIMATE</title>
 
 <style>
 
@@ -199,7 +199,7 @@ left:50%;
 
 transform:translateX(-50%);
 
-font-size:50px;
+font-size:55px;
 font-weight:bold;
 
 z-index:100;
@@ -212,12 +212,12 @@ text-shadow:
 #judge{
 position:absolute;
 
-top:245px;
+top:250px;
 left:50%;
 
 transform:translateX(-50%);
 
-font-size:32px;
+font-size:30px;
 font-weight:bold;
 
 z-index:100;
@@ -295,7 +295,7 @@ position:absolute;
 bottom:140px;
 
 width:100%;
-height:7px;
+height:8px;
 
 background:white;
 
@@ -375,7 +375,6 @@ gap:15px;
 z-index:300;
 }
 
-/* スタートボタン */
 .menu-btn{
 
 padding:20px 35px;
@@ -391,8 +390,6 @@ color:#333;
 
 box-shadow:
 0 0 25px white;
-
-touch-action:manipulation;
 }
 
 /* フルコン */
@@ -419,7 +416,6 @@ text-shadow:
 0 0 50px gold;
 }
 
-/* スマホ */
 @media(max-width:600px){
 
 .song-title{
@@ -432,22 +428,11 @@ font-size:15px;
 }
 
 #combo{
-font-size:42px;
-top:170px;
+font-size:44px;
 }
 
 #judge{
-font-size:24px;
-top:230px;
-}
-
-.menu-btn{
-font-size:20px;
-padding:18px 28px;
-}
-
-#ranking{
-font-size:11px;
+font-size:22px;
 }
 
 }
@@ -461,7 +446,7 @@ font-size:11px;
 
 <div class="bg"></div>
 
-<!-- 上UI -->
+<!-- UI -->
 <div class="top-ui">
 
 <div class="song-title">
@@ -558,57 +543,9 @@ onclick="restartGame()">
 
 </div>
 
-<!-- 音楽 -->
 <audio id="music"
 src="kaze.mp3">
 </audio>
-
-<!-- Firebase -->
-<script type="module">
-
-import {
-initializeApp
-} from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-query,
-orderBy,
-limit
-} from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* Firebase設定 */
-const firebaseConfig = {
-
-apiKey:"ここ",
-authDomain:"ここ",
-projectId:"ここ",
-storageBucket:"ここ",
-messagingSenderId:"ここ",
-appId:"ここ"
-
-};
-
-const app =
-initializeApp(firebaseConfig);
-
-const db =
-getFirestore(app);
-
-window.db = db;
-window.collection = collection;
-window.addDoc = addDoc;
-window.getDocs = getDocs;
-window.query = query;
-window.orderBy = orderBy;
-window.limit = limit;
-
-</script>
 
 <script>
 
@@ -674,7 +611,7 @@ let noteInterval = 450;
 /* ノーツ */
 let notes = [];
 
-/* 譜面生成 */
+/* 譜面 */
 function generateNotes(){
 
 notes = [];
@@ -703,7 +640,7 @@ Math.random() * 4
 
 }
 
-/* 再スタート */
+/* 再開 */
 function restartGame(){
 
 music.pause();
@@ -738,6 +675,9 @@ fullcombo.style.display =
 started = false;
 paused = false;
 
+document.body.style.filter =
+"brightness(1)";
+
 startGame();
 
 }
@@ -756,8 +696,6 @@ generateNotes();
 music.play();
 
 gameLoop();
-
-loadRanking();
 
 }
 
@@ -830,6 +768,9 @@ combo;
 judgeText.innerText =
 "MISS ❌";
 
+document.body.style.filter =
+"brightness(1)";
+
 note.remove();
 
 clearInterval(move);
@@ -883,6 +824,7 @@ rect.top - hitY
 
 let addScore = 0;
 
+/* 判定 */
 if(diff < 70){
 
 judgeText.innerText =
@@ -914,6 +856,9 @@ combo = 0;
 comboText.innerText =
 combo;
 
+document.body.style.filter =
+"brightness(1)";
+
 return;
 
 }
@@ -921,20 +866,139 @@ return;
 /* コンボ倍率 */
 let comboBonus = 1;
 
-if(combo >= 50){
-
-comboBonus = 5;
-
-}else if(combo >= 30){
-
-comboBonus = 3;
-
-}else if(combo >= 10){
+/* 10 */
+if(combo >= 10){
 
 comboBonus = 2;
 
+judgeText.innerText =
+"10 COMBO 🔥";
+
 }
 
+/* 20 */
+if(combo >= 20){
+
+comboBonus = 3;
+
+judgeText.innerText =
+"20 COMBO ⚡";
+
+}
+
+/* 30 */
+if(combo >= 30){
+
+comboBonus = 4;
+
+judgeText.innerText =
+"30 COMBO 🌟";
+
+}
+
+/* 40 */
+if(combo >= 40){
+
+comboBonus = 5;
+
+judgeText.innerText =
+"40 COMBO 💥";
+
+}
+
+/* 50 */
+if(combo >= 50){
+
+comboBonus = 6;
+
+judgeText.innerText =
+"50 COMBO 🚀";
+
+document.body.style.filter =
+"brightness(1.08)";
+
+}
+
+/* 60 */
+if(combo >= 60){
+
+comboBonus = 7;
+
+judgeText.innerText =
+"60 COMBO 🔥";
+
+}
+
+/* 70 */
+if(combo >= 70){
+
+comboBonus = 8;
+
+judgeText.innerText =
+"70 COMBO ⚡";
+
+}
+
+/* 80 */
+if(combo >= 80){
+
+comboBonus = 9;
+
+judgeText.innerText =
+"80 COMBO 🌈";
+
+document.body.style.filter =
+"brightness(1.12)";
+
+}
+
+/* 90 */
+if(combo >= 90){
+
+comboBonus = 10;
+
+judgeText.innerText =
+"90 COMBO 👑";
+
+}
+
+/* 100 */
+if(combo >= 100){
+
+comboBonus = 15;
+
+judgeText.innerText =
+"🌟 GOD COMBO 🌟";
+
+document.body.style.filter =
+"brightness(1.2)";
+
+document.body.animate(
+
+[
+{
+transform:"translateX(-5px)"
+},
+{
+transform:"translateX(5px)"
+},
+{
+transform:"translateX(-5px)"
+},
+{
+transform:"translateX(0px)"
+}
+],
+
+{
+duration:250
+}
+
+);
+
+}
+
+/* スコア */
 score +=
 addScore * comboBonus;
 
@@ -946,10 +1010,12 @@ combo;
 scoreText.innerText =
 "Score : " + score;
 
+/* 削除 */
 clearInterval(note.move);
 
 note.remove();
 
+/* エフェクト */
 tapEffect(lane);
 
 }
@@ -1070,73 +1136,6 @@ if(e.key==="k") hitNote(3);
 }
 );
 
-/* スコア保存 */
-async function saveScore(){
-
-const playerName =
-prompt("名前を入力✨");
-
-if(!playerName) return;
-
-await addDoc(
-collection(db,"scores"),
-{
-
-name:playerName,
-
-score:score,
-
-combo:combo,
-
-mode:
-noteSpeed >= 5
-? "HARD"
-: "EASY",
-
-date:
-new Date().toLocaleDateString()
-
-}
-);
-
-loadRanking();
-
-}
-
-/* ランキング */
-async function loadRanking(){
-
-const q =
-query(
-collection(db,"scores"),
-orderBy("score","desc"),
-limit(5)
-);
-
-const snapshot =
-await getDocs(q);
-
-let html =
-"🏆 TODAY BEST<br><br>";
-
-snapshot.forEach(doc=>{
-
-const data = doc.data();
-
-html +=
-`
-${data.name}
-${data.score}<br><br>
-`;
-
-});
-
-document.getElementById(
-"ranking"
-).innerHTML = html;
-
-}
-
 /* 曲終了 */
 music.addEventListener(
 "ended",
@@ -1151,8 +1150,6 @@ fullcombo.style.display =
 "block";
 
 }
-
-saveScore();
 
 }
 );
