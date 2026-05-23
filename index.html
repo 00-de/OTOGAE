@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+content="
+width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no
+">
 
 <title>DayDream Beats!!</title>
 
@@ -16,17 +23,24 @@ box-sizing:border-box;
 font-family:sans-serif;
 }
 
-body{
+html,body{
+width:100%;
+height:100%;
 overflow:hidden;
-background:black;
+
 touch-action:none;
+overscroll-behavior:none;
+
+background:black;
 }
 
 /* 全体 */
 #game{
 position:relative;
+
 width:100vw;
 height:100vh;
+
 overflow:hidden;
 
 background:
@@ -42,6 +56,7 @@ color:white;
 /* 背景 */
 .bg{
 position:absolute;
+
 width:100%;
 height:100%;
 
@@ -55,6 +70,7 @@ opacity:0.35;
 /* 上UI */
 .top-ui{
 position:absolute;
+
 top:20px;
 left:0;
 
@@ -91,7 +107,8 @@ position:absolute;
 top:90px;
 left:50%;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
 font-size:52px;
 font-weight:bold;
@@ -109,7 +126,8 @@ position:absolute;
 top:160px;
 left:50%;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
 font-size:38px;
 font-weight:bold;
@@ -127,7 +145,8 @@ position:absolute;
 bottom:0;
 left:50%;
 
-transform:translateX(-50%);
+transform:
+translateX(-50%);
 
 width:95%;
 max-width:520px;
@@ -301,6 +320,7 @@ scale(1);
 
 <div id="game">
 
+<!-- 背景 -->
 <div class="bg"></div>
 
 <!-- 上UI -->
@@ -372,6 +392,32 @@ src="kaze.mp3">
 
 <script>
 
+/* ダブルタップ拡大防止 */
+document.addEventListener(
+"dblclick",
+function(e){
+
+e.preventDefault();
+
+},
+{ passive:false }
+);
+
+/* ピンチズーム防止 */
+document.addEventListener(
+"touchmove",
+function(e){
+
+if(e.scale !== 1){
+
+e.preventDefault();
+
+}
+
+},
+{ passive:false }
+);
+
 /* 音楽 */
 const music =
 document.getElementById("music");
@@ -404,7 +450,7 @@ let started = false;
 /* ノーツ */
 const notes = [];
 
-/* 曲最後まで自動生成 */
+/* 自動譜面生成 */
 for(
 let i = 1000;
 i < 180000;
@@ -424,7 +470,7 @@ Math.random() * 4
 
 }
 
-/* 開始 */
+/* ゲーム開始 */
 function startGame(){
 
 if(started) return;
@@ -436,7 +482,7 @@ document.querySelector(
 ".start-btn"
 ).style.display = "none";
 
-/* 曲再生 */
+/* 音楽再生 */
 music.play().catch(err=>{
 
 alert(
@@ -472,7 +518,7 @@ note.spawned = true;
 
 });
 
-/* 曲終了まで継続 */
+/* 曲終了まで */
 if(!music.paused){
 
 requestAnimationFrame(
@@ -483,7 +529,7 @@ gameLoop
 
 }
 
-/* ノーツ生成 */
+/* ノーツ作成 */
 function createNote(noteData){
 
 const lane =
@@ -501,7 +547,7 @@ lane.appendChild(note);
 /* 初期位置 */
 let pos = -30;
 
-/* 速度 */
+/* 落下速度 */
 const speed = 3;
 
 /* 落下 */
@@ -531,7 +577,6 @@ judgeText.innerText =
 
 }
 
-/* 削除 */
 note.remove();
 
 clearInterval(move);
@@ -636,7 +681,7 @@ combo;
 
 }
 
-/* エフェクト */
+/* タップ演出 */
 function tapEffect(lane){
 
 const effect =
@@ -662,17 +707,20 @@ lanes.forEach(
 
 lane.addEventListener(
 "touchstart",
-()=>{
+(e)=>{
+
+e.preventDefault();
 
 hitNote(index);
 
-}
+},
+{ passive:false }
 );
 
 }
 );
 
-/* PCキー */
+/* PC操作 */
 document.addEventListener(
 "keydown",
 (e)=>{
