@@ -29,7 +29,6 @@ html,body{
 width:100%;
 height:100%;
 overflow:hidden;
-
 background:black;
 
 touch-action:manipulation;
@@ -201,8 +200,12 @@ font-weight:bold;
 
 z-index:100;
 
+color:white;
+
 text-shadow:
-0 0 20px white;
+0 0 10px white,
+0 0 20px #8ce8ff,
+0 0 40px #8ce8ff;
 }
 
 /* 判定 */
@@ -421,7 +424,7 @@ position:absolute;
 inset:0;
 
 background:
-rgba(0,0,0,0.8);
+rgba(0,0,0,0.85);
 
 display:none;
 
@@ -489,7 +492,8 @@ font-size:15px;
 }
 
 #combo{
-font-size:44px;
+font-size:42px;
+top:180px;
 }
 
 #judge{
@@ -553,7 +557,7 @@ onclick="setHardMode()">
 
 <!-- コンボ -->
 <div id="combo">
-0
+0 COMBO
 </div>
 
 <!-- 判定 -->
@@ -751,7 +755,7 @@ scoreText.innerText =
 "Score : 0";
 
 comboText.innerText =
-"0";
+"0 COMBO";
 
 judgeText.innerText =
 "START!! 🎵";
@@ -777,6 +781,9 @@ started = true;
 document.querySelector(
 ".start-menu"
 ).style.display = "none";
+
+comboText.innerText =
+"0 COMBO";
 
 generateNotes();
 
@@ -850,13 +857,10 @@ miss++;
 combo = 0;
 
 comboText.innerText =
-combo;
+"0 COMBO";
 
 judgeText.innerText =
 "MISS ❌";
-
-document.body.style.filter =
-"brightness(1)";
 
 note.remove();
 
@@ -886,7 +890,7 @@ if(laneNotes.length === 0){
 combo = 0;
 
 comboText.innerText =
-combo;
+"0 COMBO";
 
 judgeText.innerText =
 "MISS ❌";
@@ -940,69 +944,54 @@ judgeText.innerText =
 combo = 0;
 
 comboText.innerText =
-combo;
+"0 COMBO";
 
 return;
 
 }
 
-/* コンボ */
+/* コンボ倍率 */
 let comboBonus = 1;
 
 if(combo >= 10){
-
 comboBonus = 2;
-
 }
 
 if(combo >= 20){
-
 comboBonus = 3;
-
 }
 
 if(combo >= 30){
-
 comboBonus = 4;
-
 }
 
 if(combo >= 40){
-
 comboBonus = 5;
-
 }
 
 if(combo >= 50){
 
 comboBonus = 6;
 
-document.body.style.filter =
-"brightness(1.08)";
+comboText.style.color =
+"gold";
+
 }
 
 if(combo >= 60){
-
 comboBonus = 7;
-
 }
 
 if(combo >= 70){
-
 comboBonus = 8;
-
 }
 
 if(combo >= 80){
-
 comboBonus = 9;
-
 }
 
 if(combo >= 90){
-
 comboBonus = 10;
-
 }
 
 if(combo >= 100){
@@ -1012,14 +1001,23 @@ comboBonus = 15;
 judgeText.innerText =
 "🌟 GOD COMBO 🌟";
 
-document.body.style.filter =
-"brightness(1.2)";
+comboText.style.color =
+"#ff4dff";
+
+comboText.style.textShadow =
+`
+0 0 20px #ff4dff,
+0 0 40px #00ffff,
+0 0 60px gold
+`;
+
 }
 
 /* スコア */
 score +=
 addScore * comboBonus;
 
+/* コンボ加算 */
 combo++;
 
 if(combo > maxCombo){
@@ -1028,16 +1026,20 @@ maxCombo = combo;
 
 }
 
+/* コンボ表示 */
 comboText.innerText =
-combo;
+combo + " COMBO";
 
+/* スコア */
 scoreText.innerText =
 "Score : " + score;
 
+/* ノーツ削除 */
 clearInterval(note.move);
 
 note.remove();
 
+/* エフェクト */
 tapEffect(lane);
 
 }
@@ -1103,7 +1105,7 @@ scoreText.innerText =
 "Score : 0";
 
 comboText.innerText =
-"0";
+"0 COMBO";
 
 }
 
@@ -1219,26 +1221,6 @@ resultCombo.innerText =
 
 resultRank.innerText =
 rank;
-
-document.body.animate(
-
-[
-{
-transform:"scale(1)"
-},
-{
-transform:"scale(1.03)"
-},
-{
-transform:"scale(1)"
-}
-],
-
-{
-duration:500
-}
-
-);
 
 }
 );
