@@ -2,113 +2,477 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>DayDream Beats PRO FINAL FIX</title>
+
+<meta name="viewport"
+content="
+width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+minimum-scale=1.0,
+user-scalable=no,
+viewport-fit=cover
+">
+
+<title>DayDream Beats!! FINAL</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
 
-body{
-background:#000;
-overflow:hidden;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:sans-serif;
+-webkit-tap-highlight-color:transparent;
 }
 
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+background:black;
+
+touch-action:manipulation;
+overscroll-behavior:none;
+
+-webkit-user-select:none;
+user-select:none;
+}
+
+body{
+position:fixed;
+inset:0;
+}
+
+/* 背景 */
 #game{
 position:relative;
 width:100vw;
 height:100vh;
-background:linear-gradient(#4fc3ff,#001b33);
+overflow:hidden;
+
+background:
+linear-gradient(
+to bottom,
+#5ed0ff,
+#001b38
+);
+
+color:white;
+}
+
+.bg{
+position:absolute;
+width:100%;
+height:100%;
+
+background:
+url('bg.jpg')
+center/cover;
+
+opacity:0.35;
+}
+
+/* コンボ */
+#combo{
+
+position:absolute;
+
+bottom:18px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+text-align:center;
+
+z-index:300;
+
+min-width:180px;
+
+pointer-events:none;
+
+opacity:0;
 }
 
 /* UI */
-#score{
+.top-ui{
+
 position:absolute;
-top:10px;
-right:10px;
-color:#fff;
-font-weight:bold;
-z-index:10;
+
+top:16px;
+
+left:0;
+
+width:100%;
+
+padding:0 12px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+z-index:200;
 }
 
-#judge{
+.song-title{
+
+font-size:15px;
+font-weight:bold;
+
+max-width:55%;
+
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+
+text-shadow:
+0 0 10px black;
+}
+
+.score{
+font-size:15px;
+font-weight:bold;
+}
+
+/* ボタン */
+.controls{
+
 position:absolute;
-top:110px;
+
+top:50px;
+
 left:50%;
+
 transform:translateX(-50%);
-color:#fff;
+
+display:flex;
+justify-content:center;
+gap:8px;
+
+width:95%;
+
+z-index:200;
+}
+
+.control-btn{
+
+padding:8px 14px;
+
+border:none;
+border-radius:14px;
+
+background:white;
+color:#222;
+
+font-size:12px;
+font-weight:bold;
+
+box-shadow:
+0 0 10px white;
+}
+
+/* 難易度 */
+.mode-area{
+
+position:absolute;
+
+top:92px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+display:flex;
+justify-content:center;
+gap:8px;
+
+width:95%;
+
+z-index:200;
+}
+
+.mode-btn{
+
+padding:8px 14px;
+
+border:none;
+border-radius:14px;
+
+background:#ffffffdd;
+
+font-size:12px;
+font-weight:bold;
+}
+
+/* 判定 */
+#judge{
+
+position:absolute;
+
+top:132px;
+
+left:50%;
+
+transform:translateX(-50%);
+
 font-size:22px;
 font-weight:bold;
-text-shadow:0 0 10px white;
-z-index:10;
+
+z-index:200;
+
+text-shadow:
+0 0 15px white;
 }
 
-#combo{
-position:absolute;
-bottom:140px;
-left:50%;
-transform:translateX(-50%);
-color:#fff;
-font-size:28px;
-font-weight:bold;
-opacity:0;
-z-index:10;
-}
-
-/* LANES */
+/* レーン */
 .lanes{
+
 position:absolute;
+
 bottom:0;
-width:100%;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:98%;
+max-width:700px;
+
 height:100%;
+
 display:flex;
 }
 
+/* 各レーン */
 .lane{
 flex:1;
 position:relative;
-border-left:1px solid rgba(255,255,255,0.2);
-border-right:1px solid rgba(255,255,255,0.2);
+
+border-left:
+2px solid rgba(255,255,255,0.12);
+
+border-right:
+2px solid rgba(255,255,255,0.12);
 }
 
-.hit{
+/* 判定ライン */
+.hit-line{
 position:absolute;
-bottom:120px;
+
+bottom:110px;
+
 width:100%;
-height:6px;
-background:#fff;
-box-shadow:0 0 10px #fff;
+height:8px;
+
+background:white;
+
+box-shadow:
+0 0 20px white,
+0 0 40px white;
 }
 
-/* NOTE */
+/* ノーツ */
 .note{
 position:absolute;
-width:80%;
-height:26px;
-left:10%;
-background:linear-gradient(#fff,#8ce8ff);
-border-radius:10px;
-box-shadow:0 0 12px #8ce8ff;
+
+width:88%;
+height:30px;
+
+left:6%;
+
+border-radius:18px;
+
+background:
+linear-gradient(
+90deg,
+#ffffff,
+#8ce8ff
+);
+
+box-shadow:
+0 0 15px #8ce8ff,
+0 0 35px #8ce8ff;
+}
+
+/* エフェクト */
+.tap-effect{
+position:absolute;
+
+bottom:90px;
+
+width:100%;
+height:60px;
+
+background:
+rgba(255,255,255,0.5);
+
+animation:flash 0.25s;
+}
+
+@keyframes flash{
+
+0%{
+opacity:1;
+transform:scaleY(1);
+}
+
+100%{
+opacity:0;
+transform:scaleY(2);
+}
+
 }
 
 /* START */
-#start{
+.start-menu{
+
 position:absolute;
+
 top:50%;
 left:50%;
-transform:translate(-50%,-50%);
-color:#fff;
-font-size:18px;
-text-align:center;
+
+transform:
+translate(-50%,-50%);
+
+display:flex;
+flex-direction:column;
+
+gap:15px;
+
+z-index:400;
 }
 
-button{
-position:absolute;
-top:10px;
-left:10px;
-padding:6px 10px;
+.menu-btn{
+
+padding:20px 35px;
+
+font-size:22px;
+font-weight:bold;
+
 border:none;
-border-radius:10px;
-z-index:20;
+border-radius:20px;
+
+background:white;
+color:#333;
+
+box-shadow:
+0 0 25px white;
+}
+
+/* RESULT */
+#resultScreen{
+
+position:absolute;
+
+inset:0;
+
+background:
+rgba(0,0,0,0.88);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+
+z-index:500;
+}
+
+.result-box{
+
+background:
+rgba(255,255,255,0.1);
+
+padding:30px;
+
+border-radius:25px;
+
+text-align:center;
+
+width:85%;
+max-width:400px;
+
+backdrop-filter:blur(10px);
+
+box-shadow:
+0 0 30px rgba(255,255,255,0.2);
+}
+
+.result-title{
+
+font-size:34px;
+font-weight:bold;
+
+margin-bottom:20px;
+}
+
+.result-score{
+
+font-size:22px;
+
+margin:10px 0;
+}
+
+.result-rank{
+
+font-size:42px;
+font-weight:bold;
+
+margin-top:20px;
+
+text-shadow:
+0 0 20px gold;
+}
+
+/* TODAY BEST */
+#ranking{
+
+position:absolute;
+
+left:50%;
+bottom:78px;
+
+transform:translateX(-50%);
+
+width:92%;
+
+background:
+rgba(0,0,0,0.45);
+
+padding:6px;
+
+border-radius:14px;
+
+font-size:11px;
+
+text-align:center;
+
+z-index:300;
+}
+
+/* スマホ */
+@media(max-width:600px){
+
+.song-title{
+font-size:13px;
+}
+
+.score{
+font-size:13px;
+}
+
+#judge{
+font-size:18px;
+top:130px;
+}
+
+.control-btn,
+.mode-btn{
+
+font-size:11px;
+padding:7px 11px;
+
+}
+
 }
 
 </style>
@@ -118,183 +482,692 @@ z-index:20;
 
 <div id="game">
 
-<div id="score">Score: 0</div>
-<div id="judge">READY</div>
+<div class="bg"></div>
+
+<!-- COMBO -->
 <div id="combo"></div>
 
-<button onclick="startGame()">START</button>
+<!-- UI -->
+<div class="top-ui">
 
-<div id="start">TAP START</div>
+<div class="song-title">
+🎵 風になる合図 / 蓮
+</div>
 
+<div class="score"
+id="score">
+Score : 0
+</div>
+
+</div>
+
+<!-- ボタン -->
+<div class="controls">
+
+<button class="control-btn"
+onclick="pauseGame()">
+⏸ 一時停止
+</button>
+
+<button class="control-btn"
+onclick="resetGame()">
+🔄 リセット
+</button>
+
+</div>
+
+<!-- 難易度 -->
+<div class="mode-area">
+
+<button class="mode-btn"
+onclick="setEasyMode()">
+🌟 初級
+</button>
+
+<button class="mode-btn"
+onclick="setHardMode()">
+🔥 上級
+</button>
+
+</div>
+
+<!-- 判定 -->
+<div id="judge">
+READY
+</div>
+
+<!-- TODAY -->
+<div id="ranking">
+🏆 TODAY BEST : 0
+</div>
+
+<!-- START -->
+<div class="start-menu">
+
+<button class="menu-btn"
+onclick="restartGame()">
+▶ 再生してスタート
+</button>
+
+</div>
+
+<!-- RESULT -->
+<div id="resultScreen">
+
+<div class="result-box">
+
+<div class="result-title">
+🎉 ゲーム終了
+</div>
+
+<div class="result-score"
+id="resultScore">
+SCORE : 0
+</div>
+
+<div class="result-score"
+id="resultRate">
+成功率 : 0%
+</div>
+
+<div class="result-score"
+id="resultCombo">
+MAX COMBO : 0
+</div>
+
+<div class="result-rank"
+id="resultRank">
+RANK C
+</div>
+
+</div>
+
+</div>
+
+<!-- レーン -->
 <div class="lanes">
-<div class="lane" onclick="hit(0)"><div class="hit"></div></div>
-<div class="lane" onclick="hit(1)"><div class="hit"></div></div>
-<div class="lane" onclick="hit(2)"><div class="hit"></div></div>
-<div class="lane" onclick="hit(3)"><div class="hit"></div></div>
+
+<div class="lane" data-lane="0">
+<div class="hit-line"></div>
+</div>
+
+<div class="lane" data-lane="1">
+<div class="hit-line"></div>
+</div>
+
+<div class="lane" data-lane="2">
+<div class="hit-line"></div>
+</div>
+
+<div class="lane" data-lane="3">
+<div class="hit-line"></div>
 </div>
 
 </div>
 
-<audio id="music" src="kaze.mp3"></audio>
+</div>
+
+<audio id="music"
+src="kaze.mp3">
+</audio>
 
 <script>
 
-/* ======================
-STATE
-====================== */
-let score=0;
-let combo=0;
-let startTime=0;
+document.addEventListener(
+"dblclick",
+e=>e.preventDefault(),
+{ passive:false }
+);
 
-const music=document.getElementById("music");
-const lanes=document.querySelectorAll(".lane");
-const scoreEl=document.getElementById("score");
-const judgeEl=document.getElementById("judge");
-const comboEl=document.getElementById("combo");
+const music =
+document.getElementById("music");
 
-/* ======================
-譜面（時間ベース）
-====================== */
-let notes=[
-{time:1000,lane:0,spawned:false},
-{time:1500,lane:1,spawned:false},
-{time:2000,lane:2,spawned:false},
-{time:2500,lane:3,spawned:false},
-{time:3000,lane:0,spawned:false},
-{time:3500,lane:1,spawned:false},
-{time:4000,lane:2,spawned:false},
-{time:4500,lane:3,spawned:false},
-];
+const comboText =
+document.getElementById("combo");
 
-/* 実体ノーツ */
-let active=[];
+const judgeText =
+document.getElementById("judge");
 
-/* ======================
-START
-====================== */
-function startGame(){
-startTime=performance.now();
-music.play();
-document.getElementById("start").style.display="none";
-loop();
+const scoreText =
+document.getElementById("score");
+
+const rankingText =
+document.getElementById("ranking");
+
+const resultScreen =
+document.getElementById("resultScreen");
+
+const resultScore =
+document.getElementById("resultScore");
+
+const resultRate =
+document.getElementById("resultRate");
+
+const resultCombo =
+document.getElementById("resultCombo");
+
+const resultRank =
+document.getElementById("resultRank");
+
+const lanes =
+document.querySelectorAll(".lane");
+
+let combo = 0;
+let maxCombo = 0;
+let score = 0;
+let miss = 0;
+
+let paused = false;
+
+let noteSpeed = 3;
+let noteInterval = 450;
+
+let notes = [];
+
+let todayBest =
+localStorage.getItem("todayBest") || 0;
+
+rankingText.innerHTML =
+"🏆 TODAY BEST : " + todayBest;
+
+/* コンボ */
+function showCombo(comboBonus){
+
+if(combo < 2){
+
+comboText.style.opacity =
+"0";
+
+return;
+
 }
 
-/* ======================
-MAIN LOOP（完全同期）
-====================== */
-function loop(){
+comboText.style.opacity =
+"1";
 
-let now=performance.now()-startTime;
+comboText.innerHTML =
 
-/* スポーン */
-notes.forEach(n=>{
-if(!n.spawned && now>=n.time-2000){
-spawn(n);
-n.spawned=true;
+`
+<div style="
+font-size:40px;
+font-weight:bold;
+text-shadow:
+0 0 20px white,
+0 0 40px #8ce8ff;
+">
+${combo}
+</div>
+
+<div style="
+font-size:14px;
+margin-top:3px;
+">
+COMBO x${comboBonus}
+</div>
+`;
+
 }
+
+/* ノーツ生成 */
+function generateNotes(){
+
+notes = [];
+
+const songLength =
+music.duration * 1000;
+
+for(
+let i = 1000;
+i < songLength;
+i += noteInterval
+){
+
+notes.push({
+
+time:i,
+
+lane:
+Math.floor(
+Math.random() * 4
+)
+
 });
 
-requestAnimationFrame(loop);
 }
 
-/* ======================
-SPAWN
-====================== */
-function spawn(data){
+}
 
-const lane=lanes[data.lane];
+/* 再スタート */
+function restartGame(){
 
-const note=document.createElement("div");
-note.className="note";
+music.pause();
+
+music.currentTime = 0;
+
+document.querySelectorAll(".note")
+.forEach(note=>{
+
+clearInterval(note.move);
+
+note.remove();
+
+});
+
+score = 0;
+combo = 0;
+maxCombo = 0;
+miss = 0;
+
+scoreText.innerText =
+"Score : 0";
+
+comboText.style.opacity =
+"0";
+
+resultScreen.style.display =
+"none";
+
+document.querySelector(
+".start-menu"
+).style.display = "none";
+
+generateNotes();
+
+music.play();
+
+gameLoop();
+
+}
+
+/* ループ */
+function gameLoop(){
+
+if(paused) return;
+
+const currentTime =
+music.currentTime * 1000;
+
+notes.forEach(note=>{
+
+if(
+!note.spawned &&
+currentTime >= note.time - 2200
+){
+
+createNote(note);
+
+note.spawned = true;
+
+}
+
+});
+
+if(!music.paused){
+
+requestAnimationFrame(
+gameLoop
+);
+
+}
+
+}
+
+/* ノーツ */
+function createNote(noteData){
+
+const lane =
+lanes[noteData.lane];
+
+const note =
+document.createElement("div");
+
+note.classList.add("note");
+
 lane.appendChild(note);
 
-let y=-50;
+let pos = -30;
 
-const fall=setInterval(()=>{
+const move = setInterval(()=>{
 
-y+=5;
-note.style.top=y+"px";
+if(paused) return;
 
-if(y>window.innerHeight){
+pos += noteSpeed;
+
+note.style.top =
+pos + "px";
+
+if(pos >= window.innerHeight){
+
+miss++;
+
+combo = 0;
+
+comboText.style.opacity =
+"0";
+
+judgeText.innerText =
+"MISS ❌";
+
 note.remove();
-clearInterval(fall);
-miss();
+
+clearInterval(move);
+
 }
 
 },16);
 
-active.push({
-el:note,
-lane:data.lane,
-fall:fall,
-hit:false
+note.move = move;
+
+}
+
+/* 判定 */
+function hitNote(laneIndex){
+
+if(paused) return;
+
+const lane =
+lanes[laneIndex];
+
+const laneNotes =
+lane.querySelectorAll(".note");
+
+if(laneNotes.length === 0){
+
+combo = 0;
+
+comboText.style.opacity =
+"0";
+
+judgeText.innerText =
+"MISS ❌";
+
+return;
+
+}
+
+const note =
+laneNotes[0];
+
+const rect =
+note.getBoundingClientRect();
+
+const hitY =
+window.innerHeight - 160;
+
+const noteCenter =
+rect.top + (rect.height / 2);
+
+const accuracy =
+Math.abs(
+noteCenter - hitY
+);
+
+let addScore = 0;
+
+if(accuracy <= 10){
+
+judgeText.innerText =
+"🌈 PERFECT+ 🌈";
+
+addScore = 500;
+
+}else if(accuracy <= 30){
+
+judgeText.innerText =
+"PERFECT ✨";
+
+addScore = 300;
+
+}else if(accuracy <= 60){
+
+judgeText.innerText =
+"GREAT 🔥";
+
+addScore = 200;
+
+}else if(accuracy <= 100){
+
+judgeText.innerText =
+"GOOD 👍";
+
+addScore = 100;
+
+}else{
+
+judgeText.innerText =
+"MISS ❌";
+
+combo = 0;
+
+comboText.style.opacity =
+"0";
+
+return;
+
+}
+
+/* コンボ倍率 */
+let comboBonus = 1;
+
+if(combo >= 10) comboBonus = 2;
+if(combo >= 20) comboBonus = 3;
+if(combo >= 30) comboBonus = 4;
+if(combo >= 40) comboBonus = 5;
+if(combo >= 50) comboBonus = 6;
+if(combo >= 60) comboBonus = 7;
+if(combo >= 70) comboBonus = 8;
+if(combo >= 80) comboBonus = 9;
+if(combo >= 90) comboBonus = 10;
+if(combo >= 100) comboBonus = 15;
+
+combo++;
+
+if(combo > maxCombo){
+
+maxCombo = combo;
+
+}
+
+score +=
+addScore * comboBonus;
+
+scoreText.innerText =
+"Score : " + score;
+
+showCombo(comboBonus);
+
+clearInterval(note.move);
+
+note.remove();
+
+tapEffect(lane);
+
+}
+
+/* エフェクト */
+function tapEffect(lane){
+
+const effect =
+document.createElement("div");
+
+effect.classList.add(
+"tap-effect"
+);
+
+lane.appendChild(effect);
+
+setTimeout(()=>{
+
+effect.remove();
+
+},250);
+
+}
+
+/* 一時停止 */
+function pauseGame(){
+
+if(!paused){
+
+music.pause();
+
+paused = true;
+
+judgeText.innerText =
+"⏸ PAUSE";
+
+}else{
+
+music.play();
+
+paused = false;
+
+gameLoop();
+
+judgeText.innerText =
+"▶ RESUME";
+
+}
+
+}
+
+/* リセット */
+function resetGame(){
+
+restartGame();
+
+}
+
+/* 難易度 */
+function setEasyMode(){
+
+noteSpeed = 2;
+noteInterval = 650;
+
+restartGame();
+
+}
+
+function setHardMode(){
+
+noteSpeed = 5;
+noteInterval = 300;
+
+restartGame();
+
+}
+
+/* タップ */
+lanes.forEach(
+(lane,index)=>{
+
+lane.addEventListener(
+"touchstart",
+(e)=>{
+
+e.preventDefault();
+
+hitNote(index);
+
+},
+{ passive:false }
+);
+
+lane.addEventListener(
+"click",
+()=>{
+
+hitNote(index);
+
 });
 
 }
+);
 
-/* ======================
-HIT（完全判定復活）
-====================== */
-function hit(i){
+/* キーボード */
+document.addEventListener(
+"keydown",
+(e)=>{
 
-const laneNotes=active.filter(n=>n.lane===i && !n.hit);
+if(e.key==="d") hitNote(0);
+if(e.key==="f") hitNote(1);
+if(e.key==="j") hitNote(2);
+if(e.key==="k") hitNote(3);
 
-if(laneNotes.length===0){
-judge("MISS ❌");
-combo=0;
-comboEl.style.opacity=0;
-return;
+}
+);
+
+/* 終了 */
+music.addEventListener(
+"ended",
+()=>{
+
+const totalNotes =
+notes.length;
+
+const hitNotes =
+totalNotes - miss;
+
+const successRate =
+Math.floor(
+(hitNotes / totalNotes) * 100
+);
+
+let rank = "C";
+
+if(successRate >= 100){
+
+rank = "SSS 👑";
+
+}else if(successRate >= 95){
+
+rank = "SS 🌟";
+
+}else if(successRate >= 90){
+
+rank = "S 🔥";
+
+}else if(successRate >= 80){
+
+rank = "A ✨";
+
+}else if(successRate >= 70){
+
+rank = "B 👍";
+
 }
 
-let note=laneNotes[0];
-note.hit=true;
+if(score > todayBest){
 
-note.el.remove();
-clearInterval(note.fall);
+todayBest = score;
 
-/* ★ここが本体（完全復活） */
-let accuracy=0;
-if(combo<10) accuracy=80;
-else if(combo<20) accuracy=50;
-else accuracy=20;
+localStorage.setItem(
+"todayBest",
+todayBest
+);
 
-let add=0;
+rankingText.innerHTML =
+"🏆 TODAY BEST : " + todayBest;
 
-if(accuracy<=10){
-judge("PERFECT ✨");
-add=500;
-}else if(accuracy<=30){
-judge("GREAT 🔥");
-add=300;
-}else{
-judge("GOOD 👍");
-add=100;
 }
 
-combo++;
-score+=add;
+resultScreen.style.display =
+"flex";
 
-scoreEl.innerText="Score: "+score;
+resultScore.innerText =
+"SCORE : " + score;
 
-comboEl.style.opacity=1;
-comboEl.innerText="COMBO x"+combo;
+resultRate.innerText =
+"成功率 : " + successRate + "%";
+
+resultCombo.innerText =
+"MAX COMBO : " + maxCombo;
+
+resultRank.innerText =
+rank;
+
 }
-
-/* ======================
-MISS
-====================== */
-function miss(){
-combo=0;
-comboEl.style.opacity=0;
-judge("MISS ❌");
-}
-
-/* ======================
-UI
-====================== */
-function judge(t){
-judgeEl.innerText=t;
-}
+);
 
 </script>
 
