@@ -223,22 +223,25 @@ text-shadow:
 0 0 20px white;
 }
 
-/* 判定 */
+/* 判定：判定ラインの右下に小さく */
 #judge{
 position:absolute;
 
-top:245px;
-left:50%;
+/* 判定ライン bottom:140px の少し下・右寄せ */
+bottom: 100px;
+right: 15px;
 
-transform:translateX(-50%);
-
-font-size:32px;
+font-size:15px;
 font-weight:bold;
 
 z-index:100;
 
+text-align:right;
+
 text-shadow:
-0 0 15px white;
+0 0 8px white;
+
+opacity: 0.9;
 }
 
 /* レーン */
@@ -423,6 +426,108 @@ scale(1);
 
 }
 
+/* ゲーム終了画面 */
+#result-screen{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:18px;
+
+z-index:400;
+
+background:
+linear-gradient(
+160deg,
+rgba(0,30,80,0.92),
+rgba(0,80,140,0.92)
+);
+
+backdrop-filter: blur(6px);
+}
+
+.result-title{
+font-size:38px;
+font-weight:bold;
+letter-spacing:4px;
+text-shadow:
+0 0 20px #8ce8ff,
+0 0 40px #8ce8ff;
+animation: resultPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes resultPulse{
+0%{ transform:scale(1); }
+50%{ transform:scale(1.05); }
+100%{ transform:scale(1); }
+}
+
+.result-divider{
+width:220px;
+height:2px;
+background:
+linear-gradient(
+90deg,
+transparent,
+#8ce8ff,
+transparent
+);
+}
+
+.result-rows{
+display:flex;
+flex-direction:column;
+gap:10px;
+width:260px;
+}
+
+.result-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:18px;
+font-weight:bold;
+}
+
+.result-label{
+color:#aee8ff;
+font-size:15px;
+}
+
+.result-value{
+font-size:22px;
+text-shadow: 0 0 10px white;
+}
+
+#result-fullcombo-badge{
+display:none;
+font-size:28px;
+font-weight:bold;
+color:gold;
+text-shadow:
+0 0 20px gold,
+0 0 40px gold;
+animation:pulse 1s infinite;
+}
+
+.result-btn{
+padding:16px 40px;
+font-size:20px;
+font-weight:bold;
+border:none;
+border-radius:18px;
+background:white;
+color:#333;
+box-shadow: 0 0 20px white;
+margin-top:8px;
+}
+
 </style>
 </head>
 
@@ -484,6 +589,47 @@ READY
 <!-- フルコン -->
 <div id="fullcombo">
 🌟 FULL COMBO 🌟
+</div>
+
+<!-- ゲーム終了画面 -->
+<div id="result-screen">
+
+<div class="result-title">
+🎉 LIVE CLEAR 🎉
+</div>
+
+<div id="result-fullcombo-badge">
+🌟 FULL COMBO 🌟
+</div>
+
+<div class="result-divider"></div>
+
+<div class="result-rows">
+
+<div class="result-row">
+<span class="result-label">SCORE</span>
+<span class="result-value" id="result-score">0</span>
+</div>
+
+<div class="result-row">
+<span class="result-label">MAX COMBO</span>
+<span class="result-value" id="result-combo">0</span>
+</div>
+
+<div class="result-row">
+<span class="result-label">MISS</span>
+<span class="result-value" id="result-miss">0</span>
+</div>
+
+</div>
+
+<div class="result-divider"></div>
+
+<button class="result-btn"
+onclick="closeResult()">
+▶ もう一度プレイ
+</button>
+
 </div>
 
 <!-- スタート -->
@@ -569,6 +715,21 @@ document.getElementById("score");
 const fullcombo =
 document.getElementById("fullcombo");
 
+const resultScreen =
+document.getElementById("result-screen");
+
+const resultScoreEl =
+document.getElementById("result-score");
+
+const resultComboEl =
+document.getElementById("result-combo");
+
+const resultMissEl =
+document.getElementById("result-miss");
+
+const resultFullcomboBadge =
+document.getElementById("result-fullcombo-badge");
+
 const controlsEl =
 document.getElementById("controls");
 
@@ -586,6 +747,7 @@ document.querySelectorAll(".lane");
 let combo = 0;
 let score = 0;
 let miss = 0;
+let maxCombo = 0;
 
 let started = false;
 let paused = false;
@@ -681,6 +843,7 @@ note.remove();
 score = 0;
 combo = 0;
 miss = 0;
+maxCombo = 0;
 
 scoreText.innerText =
 "Score : 0";
@@ -913,6 +1076,10 @@ addScore * comboBonus;
 
 combo++;
 
+if(combo > maxCombo){
+maxCombo = combo;
+}
+
 comboText.innerText =
 combo;
 
@@ -1087,23 +1254,37 @@ music.addEventListener(
 "ended",
 ()=>{
 
-judgeText.innerText =
-"🎉 LIVE CLEAR 🎉";
+judgeText.innerText = "";
+
+/* リザルト表示 */
+resultScoreEl.innerText = score;
+resultComboEl.innerText = maxCombo;
+resultMissEl.innerText = miss;
+
+if(miss === 0){
+resultFullcomboBadge.style.display = "block";
+}else{
+resultFullcomboBadge.style.display = "none";
+}
+
+resultScreen.style.display = "flex";
 
 /* プレイ終了UIに戻す */
 setPlayingUI(false);
 
-startMenuEl.style.display = "flex";
-
-if(miss === 0){
-
-fullcombo.style.display =
-"block";
-
-}
-
 }
 );
+
+/* リザルト閉じてスタート画面へ */
+function closeResult(){
+
+resultScreen.style.display = "none";
+
+fullcombo.style.display = "none";
+
+startMenuEl.style.display = "flex";
+
+}
 
 </script>
 
