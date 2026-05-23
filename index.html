@@ -70,7 +70,7 @@ left:0;
 
 width:100%;
 
-padding:0 15px;
+padding:0 55px 0 15px;
 
 display:flex;
 justify-content:space-between;
@@ -208,7 +208,7 @@ font-weight:bold;
 #combo{
 position:absolute;
 
-bottom: 10px;
+bottom: 55px;
 left:50%;
 
 transform:translateX(-50%);
@@ -226,7 +226,7 @@ text-shadow:
 #judge{
 position:absolute;
 
-bottom: 18px;
+bottom: 62px;
 right: 15px;
 
 font-size:15px;
@@ -275,7 +275,7 @@ border-right:
 .hit-line{
 position:absolute;
 
-bottom:55px;
+bottom:100px;
 
 width:100%;
 height:10px;
@@ -314,7 +314,7 @@ box-shadow:
 .tap-effect{
 position:absolute;
 
-bottom:35px;
+bottom:80px;
 
 width:100%;
 height:60px;
@@ -424,7 +424,22 @@ scale(1);
 
 }
 
-/* ゲーム終了画面 */
+/* 全画面ボタン */
+#fullscreen-btn{
+position:absolute;
+top: 15px;
+right: 15px;
+z-index: 500;
+padding: 6px 10px;
+border: none;
+border-radius: 10px;
+background: rgba(255,255,255,0.25);
+color: white;
+font-size: 18px;
+cursor: pointer;
+backdrop-filter: blur(4px);
+box-shadow: 0 0 8px rgba(255,255,255,0.3);
+}
 #result-screen{
 position:absolute;
 top:0;
@@ -534,6 +549,9 @@ margin-top:8px;
 <div id="game">
 
 <div class="bg"></div>
+
+<!-- 全画面ボタン -->
+<button id="fullscreen-btn" onclick="toggleFullscreen()" title="全画面">⛶</button>
 
 <!-- 上UI -->
 <div class="top-ui">
@@ -674,6 +692,52 @@ src="kaze.mp3">
 </audio>
 
 <script>
+
+/* 全画面 */
+function toggleFullscreen(){
+
+const btn =
+document.getElementById(
+"fullscreen-btn"
+);
+
+if(!document.fullscreenElement){
+
+document.documentElement
+.requestFullscreen()
+.catch(err=>{
+console.log(err);
+});
+
+btn.innerText = "✕";
+
+}else{
+
+document.exitFullscreen();
+
+btn.innerText = "⛶";
+
+}
+
+}
+
+document.addEventListener(
+"fullscreenchange",
+()=>{
+
+const btn =
+document.getElementById(
+"fullscreen-btn"
+);
+
+if(!document.fullscreenElement){
+btn.innerText = "⛶";
+}else{
+btn.innerText = "✕";
+}
+
+}
+);
 
 /* 拡大防止 */
 document.addEventListener(
@@ -1003,7 +1067,7 @@ const rect =
 note.getBoundingClientRect();
 
 const hitY =
-window.innerHeight - 85;
+window.innerHeight - 130;
 
 const diff =
 Math.abs(
