@@ -99,11 +99,12 @@ font-size:18px;
 font-weight:bold;
 }
 
-/* ボタン */
+/* ボタン（プレイ中は左下に表示） */
 .controls{
 
 position:absolute;
 
+/* デフォルト位置（スタート前） */
 top:60px;
 left:50%;
 
@@ -119,6 +120,19 @@ gap:8px;
 width:95%;
 
 z-index:100;
+
+transition: all 0.3s ease;
+}
+
+/* プレイ中は判定ラインの左下 */
+.controls.playing{
+top: auto;
+bottom: 60px;
+left: 10px;
+transform: none;
+width: auto;
+flex-direction: column;
+gap: 6px;
 }
 
 .control-btn{
@@ -136,6 +150,14 @@ font-weight:bold;
 
 box-shadow:
 0 0 10px white;
+}
+
+/* プレイ中は小さく */
+.controls.playing .control-btn{
+padding: 7px 12px;
+font-size: 12px;
+opacity: 0.85;
+box-shadow: 0 0 8px white;
 }
 
 /* 難易度 */
@@ -158,6 +180,15 @@ gap:8px;
 width:95%;
 
 z-index:100;
+
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* プレイ中は非表示 */
+.mode-area.hidden{
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
 }
 
 .mode-btn{
@@ -173,11 +204,12 @@ font-size:13px;
 font-weight:bold;
 }
 
-/* コンボ */
+/* コンボ：判定ラインの下に配置 */
 #combo{
 position:absolute;
 
-top:180px;
+/* 判定ライン(bottom:140px)の下 → bottom: 90px あたり */
+bottom: 85px;
 left:50%;
 
 transform:translateX(-50%);
@@ -414,8 +446,8 @@ Score : 0
 
 </div>
 
-<!-- コントロール -->
-<div class="controls">
+<!-- コントロール（プレイ中は左下へ） -->
+<div class="controls" id="controls">
 
 <button class="control-btn"
 onclick="pauseGame()">
@@ -429,8 +461,8 @@ onclick="resetScore()">
 
 </div>
 
-<!-- 難易度 -->
-<div class="mode-area">
+<!-- 難易度（プレイ中は非表示） -->
+<div class="mode-area" id="modeArea">
 
 <button class="mode-btn"
 onclick="setEasyMode()">
@@ -444,11 +476,6 @@ onclick="setHardMode()">
 
 </div>
 
-<!-- コンボ -->
-<div id="combo">
-0
-</div>
-
 <!-- 判定 -->
 <div id="judge">
 READY
@@ -460,7 +487,7 @@ READY
 </div>
 
 <!-- スタート -->
-<div class="start-menu">
+<div class="start-menu" id="startMenu">
 
 <button class="menu-btn"
 onclick="restartGame()">
@@ -488,6 +515,11 @@ onclick="restartGame()">
 <div class="hit-line"></div>
 </div>
 
+</div>
+
+<!-- コンボ：判定ラインの下 -->
+<div id="combo">
+0
 </div>
 
 </div>
@@ -537,6 +569,15 @@ document.getElementById("score");
 const fullcombo =
 document.getElementById("fullcombo");
 
+const controlsEl =
+document.getElementById("controls");
+
+const modeAreaEl =
+document.getElementById("modeArea");
+
+const startMenuEl =
+document.getElementById("startMenu");
+
 /* レーン */
 const lanes =
 document.querySelectorAll(".lane");
@@ -555,6 +596,23 @@ let noteInterval = 450;
 
 /* ノーツ */
 let notes = [];
+
+/* プレイ中UIの切り替え */
+function setPlayingUI(isPlaying){
+
+if(isPlaying){
+// コントロールを左下へ
+controlsEl.classList.add("playing");
+// 難易度ボタンを非表示
+modeAreaEl.classList.add("hidden");
+}else{
+// 元の位置へ
+controlsEl.classList.remove("playing");
+// 難易度ボタンを表示
+modeAreaEl.classList.remove("hidden");
+}
+
+}
 
 /* 曲読み込み */
 music.addEventListener(
@@ -650,9 +708,10 @@ function startGame(){
 
 started = true;
 
-document.querySelector(
-".start-menu"
-).style.display = "none";
+startMenuEl.style.display = "none";
+
+/* プレイ中UI切り替え */
+setPlayingUI(true);
 
 music.play();
 
@@ -1030,6 +1089,11 @@ music.addEventListener(
 
 judgeText.innerText =
 "🎉 LIVE CLEAR 🎉";
+
+/* プレイ終了UIに戻す */
+setPlayingUI(false);
+
+startMenuEl.style.display = "flex";
 
 if(miss === 0){
 
