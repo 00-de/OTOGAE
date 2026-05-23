@@ -529,14 +529,39 @@ let noteInterval = 450;
 /* ノーツ */
 let notes = [];
 
+/* 曲読み込み後 */
+music.addEventListener(
+"loadedmetadata",
+()=>{
+
+generateNotes();
+
+}
+);
+
 /* 譜面生成 */
 function generateNotes(){
 
 notes = [];
 
+/* 曲長さ取得 */
+const songLength =
+music.duration * 1000;
+
+/* 読み込み前 */
+if(
+!songLength ||
+isNaN(songLength)
+){
+
+return;
+
+}
+
+/* 曲終了まで生成 */
 for(
 let i = 1000;
-i < 180000;
+i < songLength;
 i += noteInterval
 ){
 
@@ -555,9 +580,6 @@ Math.random() * 4
 
 }
 
-/* 初期生成 */
-generateNotes();
-
 /* ゲーム開始 */
 function startGame(){
 
@@ -565,10 +587,15 @@ if(started) return;
 
 started = true;
 
+/* 譜面再生成 */
+generateNotes();
+
+/* ボタン消す */
 document.querySelector(
 ".start-btn"
 ).style.display = "none";
 
+/* 音楽再生 */
 music.play();
 
 gameLoop();
@@ -583,7 +610,7 @@ if(paused) return;
 const currentTime =
 music.currentTime * 1000;
 
-/* ノーツ */
+/* ノーツ生成 */
 notes.forEach(note=>{
 
 if(
@@ -599,6 +626,7 @@ note.spawned = true;
 
 });
 
+/* 曲終了まで */
 if(!music.paused){
 
 requestAnimationFrame(
@@ -626,6 +654,7 @@ lane.appendChild(note);
 
 let pos = -30;
 
+/* 落下速度 */
 const move = setInterval(()=>{
 
 if(paused) return;
@@ -635,6 +664,7 @@ pos += noteSpeed;
 note.style.top =
 pos + "px";
 
+/* 画面下 */
 if(pos >= window.innerHeight){
 
 if(
