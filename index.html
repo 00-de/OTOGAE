@@ -196,32 +196,24 @@ left:50%;
 
 transform:translateX(-50%);
 
-font-size:42px;
-font-weight:bold;
-
 line-height:1.0;
 
 text-align:center;
 
 z-index:999;
 
-color:white;
-
 display:block;
 
 min-width:220px;
 
-text-shadow:
-0 0 10px white,
-0 0 20px #8ce8ff,
-0 0 40px #8ce8ff;
+opacity:0;
 }
 
 /* 判定 */
 #judge{
 position:absolute;
 
-top:280px;
+top:300px;
 left:50%;
 
 transform:translateX(-50%);
@@ -401,30 +393,6 @@ box-shadow:
 0 0 25px white;
 }
 
-/* FULL COMBO */
-#fullcombo{
-position:absolute;
-
-top:45%;
-left:50%;
-
-transform:
-translate(-50%,-50%);
-
-font-size:42px;
-font-weight:bold;
-
-color:gold;
-
-display:none;
-
-z-index:300;
-
-text-shadow:
-0 0 25px gold,
-0 0 50px gold;
-}
-
 /* RESULT */
 #resultScreen{
 
@@ -500,14 +468,9 @@ max-width:52%;
 font-size:15px;
 }
 
-#combo{
-font-size:38px;
-top:180px;
-}
-
 #judge{
 font-size:22px;
-top:270px;
+top:290px;
 }
 
 }
@@ -566,9 +529,7 @@ onclick="setHardMode()">
 </div>
 
 <!-- コンボ -->
-<div id="combo">
-0<br>COMBO
-</div>
+<div id="combo"></div>
 
 <!-- 判定 -->
 <div id="judge">
@@ -578,11 +539,6 @@ READY
 <!-- ランキング -->
 <div id="ranking">
 🏆 TODAY BEST
-</div>
-
-<!-- FULL COMBO -->
-<div id="fullcombo">
-🌟 FULL COMBO 🌟
 </div>
 
 <!-- START -->
@@ -675,9 +631,6 @@ document.getElementById("judge");
 const scoreText =
 document.getElementById("score");
 
-const fullcombo =
-document.getElementById("fullcombo");
-
 const resultScreen =
 document.getElementById("resultScreen");
 
@@ -708,6 +661,106 @@ let noteSpeed = 3;
 let noteInterval = 450;
 
 let notes = [];
+
+/* 🌟 コンボ演出 */
+function showComboEffect(){
+
+if(combo < 2){
+
+comboText.style.opacity =
+"0";
+
+return;
+
+}
+
+comboText.style.opacity =
+"1";
+
+comboText.innerHTML =
+
+`
+<div style="
+font-size:58px;
+font-weight:bold;
+line-height:1;
+">
+${combo}
+</div>
+
+<div style="
+font-size:22px;
+margin-top:5px;
+letter-spacing:3px;
+">
+COMBO
+</div>
+`;
+
+if(combo >= 100){
+
+comboText.style.color =
+"#ff4dff";
+
+comboText.style.textShadow =
+`
+0 0 20px #ff4dff,
+0 0 40px #00ffff,
+0 0 60px gold
+`;
+
+}else if(combo >= 50){
+
+comboText.style.color =
+"gold";
+
+comboText.style.textShadow =
+`
+0 0 20px gold,
+0 0 40px orange
+`;
+
+}else{
+
+comboText.style.color =
+"white";
+
+comboText.style.textShadow =
+`
+0 0 10px white,
+0 0 20px #8ce8ff,
+0 0 40px #8ce8ff
+`;
+
+}
+
+comboText.animate(
+
+[
+{
+transform:
+"translateX(-50%) scale(0.7)",
+opacity:0.5
+},
+{
+transform:
+"translateX(-50%) scale(1.2)",
+opacity:1
+},
+{
+transform:
+"translateX(-50%) scale(1)",
+opacity:1
+}
+],
+
+{
+duration:220
+}
+
+);
+
+}
 
 /* 譜面 */
 function generateNotes(){
@@ -762,14 +815,11 @@ miss = 0;
 scoreText.innerText =
 "Score : 0";
 
-comboText.innerHTML =
-"0<br>COMBO";
+comboText.style.opacity =
+"0";
 
 judgeText.innerText =
 "START!! 🎵";
-
-fullcombo.style.display =
-"none";
 
 resultScreen.style.display =
 "none";
@@ -858,8 +908,8 @@ miss++;
 
 combo = 0;
 
-comboText.innerHTML =
-"0<br>COMBO";
+comboText.style.opacity =
+"0";
 
 judgeText.innerText =
 "MISS ❌";
@@ -891,8 +941,8 @@ if(laneNotes.length === 0){
 
 combo = 0;
 
-comboText.innerHTML =
-"0<br>COMBO";
+comboText.style.opacity =
+"0";
 
 judgeText.innerText =
 "MISS ❌";
@@ -945,8 +995,8 @@ judgeText.innerText =
 
 combo = 0;
 
-comboText.innerHTML =
-"0<br>COMBO";
+comboText.style.opacity =
+"0";
 
 return;
 
@@ -972,12 +1022,7 @@ comboBonus = 5;
 }
 
 if(combo >= 50){
-
 comboBonus = 6;
-
-comboText.style.color =
-"gold";
-
 }
 
 if(combo >= 60){
@@ -997,15 +1042,7 @@ comboBonus = 10;
 }
 
 if(combo >= 100){
-
 comboBonus = 15;
-
-judgeText.innerText =
-"🌟 GOD COMBO 🌟";
-
-comboText.style.color =
-"#ff4dff";
-
 }
 
 /* スコア */
@@ -1022,8 +1059,7 @@ maxCombo = combo;
 }
 
 /* 🌟コンボ表示 */
-comboText.innerHTML =
-combo + "<br>COMBO";
+showComboEffect();
 
 /* スコア */
 scoreText.innerText =
@@ -1099,8 +1135,8 @@ miss = 0;
 scoreText.innerText =
 "Score : 0";
 
-comboText.innerHTML =
-"0<br>COMBO";
+comboText.style.opacity =
+"0";
 
 }
 
@@ -1192,13 +1228,6 @@ rank = "A ✨";
 }else if(successRate >= 70){
 
 rank = "B 👍";
-
-}
-
-if(miss === 0){
-
-fullcombo.style.display =
-"block";
 
 }
 
