@@ -208,13 +208,12 @@ font-weight:bold;
 #combo{
 position:absolute;
 
-/* 判定ライン(bottom:140px)の下 → bottom: 90px あたり */
-bottom: 85px;
+bottom: 10px;
 left:50%;
 
 transform:translateX(-50%);
 
-font-size:50px;
+font-size:36px;
 font-weight:bold;
 
 z-index:100;
@@ -277,10 +276,10 @@ border-right:
 .hit-line{
 position:absolute;
 
-bottom:140px;
+bottom:55px;
 
 width:100%;
-height:7px;
+height:10px;
 
 background:white;
 
@@ -316,10 +315,10 @@ box-shadow:
 .tap-effect{
 position:absolute;
 
-bottom:120px;
+bottom:35px;
 
 width:100%;
-height:50px;
+height:60px;
 
 background:
 rgba(255,255,255,0.5);
@@ -1020,7 +1019,7 @@ if(diff < 60){
 judgeText.innerText =
 "PERFECT ✨";
 
-addScore = 300;
+addScore = 1000;
 
 /* GREAT */
 }else if(diff < 100){
@@ -1028,7 +1027,7 @@ addScore = 300;
 judgeText.innerText =
 "GREAT 🔥";
 
-addScore = 200;
+addScore = 600;
 
 /* GOOD */
 }else if(diff < 140){
@@ -1036,7 +1035,7 @@ addScore = 200;
 judgeText.innerText =
 "GOOD 👍";
 
-addScore = 100;
+addScore = 300;
 
 /* MISS */
 }else{
@@ -1056,15 +1055,23 @@ return;
 /* コンボ倍率 */
 let comboBonus = 1;
 
-if(combo >= 50){
+if(combo >= 100){
 
-comboBonus = 5;
+comboBonus = 10;
+
+}else if(combo >= 50){
+
+comboBonus = 7;
 
 }else if(combo >= 30){
 
-comboBonus = 3;
+comboBonus = 5;
 
 }else if(combo >= 10){
+
+comboBonus = 3;
+
+}else if(combo >= 5){
 
 comboBonus = 2;
 
