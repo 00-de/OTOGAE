@@ -11,7 +11,7 @@ maximum-scale=1.0,
 user-scalable=no
 ">
 
-<title>DayDream Beats!!</title>
+<title>DayDream Beats!! ONLINE</title>
 
 <style>
 
@@ -209,6 +209,30 @@ text-shadow:
 0 0 15px white;
 }
 
+/* ランキング */
+#ranking{
+
+position:absolute;
+
+right:10px;
+top:320px;
+
+width:170px;
+
+background:
+rgba(0,0,0,0.6);
+
+padding:12px;
+
+border-radius:15px;
+
+font-size:12px;
+
+z-index:200;
+
+line-height:1.6;
+}
+
 /* レーン */
 .lanes{
 position:absolute;
@@ -226,7 +250,6 @@ height:100%;
 display:flex;
 }
 
-/* レーン */
 .lane{
 flex:1;
 position:relative;
@@ -306,7 +329,7 @@ transform:scaleY(2);
 
 }
 
-/* スタート画面 */
+/* スタート */
 .start-menu{
 
 position:absolute;
@@ -325,7 +348,6 @@ gap:15px;
 z-index:300;
 }
 
-/* スタートボタン */
 .menu-btn{
 
 padding:20px 35px;
@@ -365,30 +387,6 @@ z-index:300;
 text-shadow:
 0 0 25px gold,
 0 0 50px gold;
-
-animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-
-0%{
-transform:
-translate(-50%,-50%)
-scale(1);
-}
-
-50%{
-transform:
-translate(-50%,-50%)
-scale(1.1);
-}
-
-100%{
-transform:
-translate(-50%,-50%)
-scale(1);
-}
-
 }
 
 </style>
@@ -414,7 +412,7 @@ Score : 0
 
 </div>
 
-<!-- コントロール -->
+<!-- ボタン -->
 <div class="controls">
 
 <button class="control-btn"
@@ -452,6 +450,11 @@ onclick="setHardMode()">
 <!-- 判定 -->
 <div id="judge">
 READY
+</div>
+
+<!-- ランキング -->
+<div id="ranking">
+🏆 LOADING...
 </div>
 
 <!-- フルコン -->
@@ -497,30 +500,64 @@ onclick="restartGame()">
 src="kaze.mp3">
 </audio>
 
+<!-- Firebase -->
+<script type="module">
+
+import {
+initializeApp
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+query,
+orderBy,
+limit
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* Firebase設定 */
+const firebaseConfig = {
+
+/* Firebaseから貼る */
+
+apiKey:"ここ",
+
+authDomain:"ここ",
+
+projectId:"ここ",
+
+storageBucket:"ここ",
+
+messagingSenderId:"ここ",
+
+appId:"ここ"
+
+};
+
+/* 初期化 */
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getFirestore(app);
+
+window.db = db;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.query = query;
+window.orderBy = orderBy;
+window.limit = limit;
+
+</script>
+
 <script>
 
-/* 拡大防止 */
-document.addEventListener(
-"dblclick",
-e=>e.preventDefault(),
-{ passive:false }
-);
-
-document.addEventListener(
-"touchmove",
-function(e){
-
-if(e.scale !== 1){
-
-e.preventDefault();
-
-}
-
-},
-{ passive:false }
-);
-
-/* 音楽 */
+/* 音 */
 const music =
 document.getElementById("music");
 
@@ -556,16 +593,6 @@ let noteInterval = 450;
 /* ノーツ */
 let notes = [];
 
-/* 曲読み込み */
-music.addEventListener(
-"loadedmetadata",
-()=>{
-
-generateNotes();
-
-}
-);
-
 /* 譜面生成 */
 function generateNotes(){
 
@@ -573,13 +600,6 @@ notes = [];
 
 const songLength =
 music.duration * 1000;
-
-if(
-!songLength ||
-isNaN(songLength)
-){
-return;
-}
 
 for(
 let i = 1000;
@@ -602,7 +622,7 @@ Math.random() * 4
 
 }
 
-/* 再生して開始 */
+/* 再スタート */
 function restartGame(){
 
 music.pause();
@@ -630,22 +650,20 @@ scoreText.innerText =
 comboText.innerText =
 "0";
 
-fullcombo.style.display =
-"none";
-
 judgeText.innerText =
 "START!! 🎵";
 
-/* 状態 */
+fullcombo.style.display =
+"none";
+
 started = false;
 paused = false;
 
-/* 開始 */
 startGame();
 
 }
 
-/* ゲーム開始 */
+/* 開始 */
 function startGame(){
 
 started = true;
@@ -654,11 +672,13 @@ document.querySelector(
 ".start-menu"
 ).style.display = "none";
 
-music.play();
-
 generateNotes();
 
+music.play();
+
 gameLoop();
+
+loadRanking();
 
 }
 
@@ -695,7 +715,7 @@ gameLoop
 
 }
 
-/* ノーツ生成 */
+/* ノーツ */
 function createNote(noteData){
 
 const lane =
@@ -705,8 +725,6 @@ const note =
 document.createElement("div");
 
 note.classList.add("note");
-
-note.dataset.hit = "false";
 
 lane.appendChild(note);
 
@@ -723,10 +741,6 @@ pos + "px";
 
 if(pos >= window.innerHeight){
 
-if(
-note.dataset.hit === "false"
-){
-
 miss++;
 
 combo = 0;
@@ -736,8 +750,6 @@ combo;
 
 judgeText.innerText =
 "MISS ❌";
-
-}
 
 note.remove();
 
@@ -764,13 +776,13 @@ lane.querySelectorAll(".note");
 
 if(laneNotes.length === 0){
 
-judgeText.innerText =
-"MISS ❌";
-
 combo = 0;
 
 comboText.innerText =
 combo;
+
+judgeText.innerText =
+"MISS ❌";
 
 return;
 
@@ -792,7 +804,6 @@ rect.top - hitY
 
 let addScore = 0;
 
-/* PERFECT */
 if(diff < 60){
 
 judgeText.innerText =
@@ -800,7 +811,6 @@ judgeText.innerText =
 
 addScore = 300;
 
-/* GREAT */
 }else if(diff < 100){
 
 judgeText.innerText =
@@ -808,7 +818,6 @@ judgeText.innerText =
 
 addScore = 200;
 
-/* GOOD */
 }else if(diff < 140){
 
 judgeText.innerText =
@@ -816,7 +825,6 @@ judgeText.innerText =
 
 addScore = 100;
 
-/* MISS */
 }else{
 
 judgeText.innerText =
@@ -848,7 +856,6 @@ comboBonus = 2;
 
 }
 
-/* スコア */
 score +=
 addScore * comboBonus;
 
@@ -860,30 +867,11 @@ combo;
 scoreText.innerText =
 "Score : " + score;
 
-/* ノーツ削除 */
-note.dataset.hit = "true";
-
 clearInterval(note.move);
 
 note.remove();
 
-/* 演出 */
 tapEffect(lane);
-
-/* コンボ演出 */
-if(combo % 10 === 0){
-
-judgeText.innerText =
-combo + " COMBO 🔥";
-
-}
-
-if(combo >= 50){
-
-judgeText.innerText =
-"🔥 AMAZING COMBO 🔥";
-
-}
 
 }
 
@@ -949,9 +937,6 @@ scoreText.innerText =
 comboText.innerText =
 "0";
 
-judgeText.innerText =
-"RESET ✨";
-
 }
 
 /* 初級 */
@@ -961,9 +946,6 @@ noteSpeed = 2;
 noteInterval = 650;
 
 restartGame();
-
-judgeText.innerText =
-"🌟 EASY MODE";
 
 }
 
@@ -975,12 +957,9 @@ noteInterval = 300;
 
 restartGame();
 
-judgeText.innerText =
-"🔥 HARD MODE";
-
 }
 
-/* スマホ操作 */
+/* タップ */
 lanes.forEach(
 (lane,index)=>{
 
@@ -999,29 +978,85 @@ hitNote(index);
 }
 );
 
-/* PC操作 */
+/* キーボード */
 document.addEventListener(
 "keydown",
 (e)=>{
 
-if(e.key === "d"){
-hitNote(0);
-}
-
-if(e.key === "f"){
-hitNote(1);
-}
-
-if(e.key === "j"){
-hitNote(2);
-}
-
-if(e.key === "k"){
-hitNote(3);
-}
+if(e.key==="d") hitNote(0);
+if(e.key==="f") hitNote(1);
+if(e.key==="j") hitNote(2);
+if(e.key==="k") hitNote(3);
 
 }
 );
+
+/* スコア保存 */
+async function saveScore(){
+
+const playerName =
+prompt("名前を入力✨");
+
+if(!playerName) return;
+
+await addDoc(
+collection(db,"scores"),
+{
+
+name:playerName,
+
+score:score,
+
+combo:combo,
+
+mode:
+noteSpeed >= 5
+? "HARD"
+: "EASY",
+
+date:
+new Date().toLocaleDateString()
+
+}
+);
+
+loadRanking();
+
+}
+
+/* ランキング */
+async function loadRanking(){
+
+const q =
+query(
+collection(db,"scores"),
+orderBy("score","desc"),
+limit(5)
+);
+
+const snapshot =
+await getDocs(q);
+
+let html =
+"🏆 TODAY BEST<br><br>";
+
+snapshot.forEach(doc=>{
+
+const data = doc.data();
+
+html +=
+`
+${data.name}<br>
+${data.score}<br><br>
+`;
+
+});
+
+document.getElementById(
+"ranking"
+).innerHTML = html;
+
+}
 
 /* 曲終了 */
 music.addEventListener(
@@ -1037,6 +1072,8 @@ fullcombo.style.display =
 "block";
 
 }
+
+saveScore();
 
 }
 );
