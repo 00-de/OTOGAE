@@ -691,7 +691,7 @@ comboText.innerText =
 combo;
 
 judgeText.innerText =
-"MISS";
+"MISS ❌";
 
 }
 
@@ -718,10 +718,11 @@ lanes[laneIndex];
 const laneNotes =
 lane.querySelectorAll(".note");
 
+/* ノーツなし */
 if(laneNotes.length === 0){
 
 judgeText.innerText =
-"MISS";
+"MISS ❌";
 
 combo = 0;
 
@@ -738,16 +739,90 @@ laneNotes[0];
 const rect =
 note.getBoundingClientRect();
 
+/* 判定位置 */
 const hitY =
 window.innerHeight - 170;
 
+/* 判定差 */
 const diff =
 Math.abs(
 rect.top - hitY
 );
 
-if(diff < 80){
+/* 加点 */
+let addScore = 0;
 
+/* PERFECT */
+if(diff < 60){
+
+judgeText.innerText =
+"PERFECT ✨";
+
+addScore = 300;
+
+/* GREAT */
+}else if(diff < 100){
+
+judgeText.innerText =
+"GREAT 🔥";
+
+addScore = 200;
+
+/* GOOD */
+}else if(diff < 140){
+
+judgeText.innerText =
+"GOOD 👍";
+
+addScore = 100;
+
+/* MISS */
+}else{
+
+judgeText.innerText =
+"MISS ❌";
+
+combo = 0;
+
+comboText.innerText =
+combo;
+
+return;
+
+}
+
+/* コンボ倍率 */
+let comboBonus = 1;
+
+if(combo >= 50){
+
+comboBonus = 5;
+
+}else if(combo >= 30){
+
+comboBonus = 3;
+
+}else if(combo >= 10){
+
+comboBonus = 2;
+
+}
+
+/* スコア */
+score +=
+addScore * comboBonus;
+
+/* コンボ */
+combo++;
+
+comboText.innerText =
+combo;
+
+/* スコア表示 */
+scoreText.innerText =
+"Score : " + score;
+
+/* ノーツ削除 */
 note.dataset.hit = "true";
 
 clearInterval(
@@ -756,21 +831,10 @@ note.move
 
 note.remove();
 
-combo++;
-
-score += 100;
-
-comboText.innerText =
-combo;
-
-scoreText.innerText =
-"Score : " + score;
-
-judgeText.innerText =
-"PERFECT ✨";
-
+/* タップ演出 */
 tapEffect(lane);
 
+/* コンボ演出 */
 if(combo % 10 === 0){
 
 judgeText.innerText =
@@ -779,21 +843,17 @@ combo +
 
 }
 
-}else{
+/* 高コンボ */
+if(combo >= 50){
 
 judgeText.innerText =
-"BAD";
-
-combo = 0;
-
-comboText.innerText =
-combo;
+"🔥 AMAZING COMBO 🔥";
 
 }
 
 }
 
-/* エフェクト */
+/* タップ演出 */
 function tapEffect(lane){
 
 const effect =
