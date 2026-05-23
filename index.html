@@ -41,7 +41,6 @@ user-select:none;
 body{
 position:fixed;
 inset:0;
-transition:0.3s;
 }
 
 /* ゲーム */
@@ -78,7 +77,7 @@ opacity:0.35;
 .top-ui{
 position:absolute;
 
-top:15px;
+top:12px;
 left:0;
 
 width:100%;
@@ -94,7 +93,7 @@ z-index:100;
 
 .song-title{
 
-font-size:18px;
+font-size:16px;
 font-weight:bold;
 
 white-space:nowrap;
@@ -108,7 +107,7 @@ text-shadow:
 }
 
 .score{
-font-size:18px;
+font-size:16px;
 font-weight:bold;
 }
 
@@ -117,7 +116,7 @@ font-weight:bold;
 
 position:absolute;
 
-top:60px;
+top:48px;
 left:50%;
 
 transform:translateX(-50%);
@@ -127,16 +126,16 @@ flex-wrap:wrap;
 
 justify-content:center;
 
-gap:8px;
+gap:6px;
 
-width:95%;
+width:96%;
 
 z-index:100;
 }
 
 .control-btn{
 
-padding:8px 14px;
+padding:7px 12px;
 
 border:none;
 border-radius:12px;
@@ -144,7 +143,7 @@ border-radius:12px;
 background:white;
 color:#222;
 
-font-size:13px;
+font-size:12px;
 font-weight:bold;
 
 box-shadow:
@@ -156,7 +155,7 @@ box-shadow:
 
 position:absolute;
 
-top:120px;
+top:92px;
 left:50%;
 
 transform:translateX(-50%);
@@ -166,23 +165,23 @@ flex-wrap:wrap;
 
 justify-content:center;
 
-gap:8px;
+gap:6px;
 
-width:95%;
+width:96%;
 
 z-index:100;
 }
 
 .mode-btn{
 
-padding:8px 14px;
+padding:7px 12px;
 
 border:none;
 border-radius:12px;
 
 background:#ffffffcc;
 
-font-size:13px;
+font-size:12px;
 font-weight:bold;
 }
 
@@ -191,8 +190,8 @@ font-weight:bold;
 
 position:absolute;
 
-/* 邪魔にならない位置 */
-top:85px;
+/* 上へ */
+top:58px;
 
 left:50%;
 
@@ -210,8 +209,6 @@ min-width:180px;
 
 pointer-events:none;
 
-font-size:0.8em;
-
 opacity:0;
 }
 
@@ -219,12 +216,12 @@ opacity:0;
 #judge{
 position:absolute;
 
-top:250px;
+top:145px;
 left:50%;
 
 transform:translateX(-50%);
 
-font-size:28px;
+font-size:24px;
 font-weight:bold;
 
 z-index:100;
@@ -241,21 +238,21 @@ text-shadow:
 position:absolute;
 
 left:50%;
-bottom:10px;
+bottom:8px;
 
 transform:translateX(-50%);
 
-width:92%;
-max-width:520px;
+width:94%;
+max-width:700px;
 
 background:
 rgba(0,0,0,0.55);
 
-padding:10px;
+padding:8px;
 
 border-radius:15px;
 
-font-size:12px;
+font-size:11px;
 
 z-index:200;
 
@@ -266,17 +263,19 @@ text-align:center;
 backdrop-filter:blur(8px);
 }
 
-/* レーン */
+/* 🌟レーン広化 */
 .lanes{
 position:absolute;
 
-bottom:110px;
+/* 🌟プレイエリア拡張 */
+bottom:55px;
+
 left:50%;
 
 transform:translateX(-50%);
 
-width:95%;
-max-width:520px;
+width:98%;
+max-width:700px;
 
 height:100%;
 
@@ -289,17 +288,17 @@ flex:1;
 position:relative;
 
 border-left:
-2px solid rgba(255,255,255,0.15);
+2px solid rgba(255,255,255,0.12);
 
 border-right:
-2px solid rgba(255,255,255,0.15);
+2px solid rgba(255,255,255,0.12);
 }
 
-/* 判定ライン */
+/* 🌟判定ライン下げ */
 .hit-line{
 position:absolute;
 
-bottom:140px;
+bottom:90px;
 
 width:100%;
 height:8px;
@@ -311,16 +310,16 @@ box-shadow:
 0 0 40px white;
 }
 
-/* ノーツ */
+/* 🌟ノーツ大型化 */
 .note{
 position:absolute;
 
-width:80%;
-height:24px;
+width:88%;
+height:30px;
 
-left:10%;
+left:6%;
 
-border-radius:15px;
+border-radius:18px;
 
 background:
 linear-gradient(
@@ -338,10 +337,10 @@ box-shadow:
 .tap-effect{
 position:absolute;
 
-bottom:120px;
+bottom:70px;
 
 width:100%;
-height:50px;
+height:60px;
 
 background:
 rgba(255,255,255,0.5);
@@ -386,7 +385,7 @@ z-index:300;
 
 padding:20px 35px;
 
-font-size:24px;
+font-size:22px;
 font-weight:bold;
 
 border:none;
@@ -463,20 +462,21 @@ text-shadow:
 0 0 20px gold;
 }
 
+/* スマホ */
 @media(max-width:600px){
 
 .song-title{
-font-size:15px;
-max-width:52%;
+font-size:14px;
+max-width:55%;
 }
 
 .score{
-font-size:15px;
+font-size:14px;
 }
 
 #judge{
-font-size:22px;
-top:240px;
+font-size:20px;
+top:145px;
 }
 
 }
@@ -534,7 +534,7 @@ onclick="setHardMode()">
 
 </div>
 
-<!-- 🌟コンボ -->
+<!-- コンボ -->
 <div id="combo"></div>
 
 <!-- 判定 -->
@@ -687,7 +687,7 @@ comboText.innerHTML =
 
 `
 <div style="
-font-size:42px;
+font-size:40px;
 font-weight:bold;
 line-height:1;
 ">
@@ -695,7 +695,7 @@ ${combo}
 </div>
 
 <div style="
-font-size:16px;
+font-size:15px;
 margin-top:4px;
 letter-spacing:2px;
 ">
@@ -750,7 +750,7 @@ opacity:0.5
 },
 {
 transform:
-"translateX(-50%) scale(1.15)",
+"translateX(-50%) scale(1.12)",
 opacity:1
 },
 {
@@ -963,8 +963,9 @@ laneNotes[0];
 const rect =
 note.getBoundingClientRect();
 
+/* 🌟下げて押しやすく */
 const hitY =
-window.innerHeight - 250;
+window.innerHeight - 170;
 
 const diff =
 Math.abs(
@@ -973,21 +974,21 @@ rect.top - hitY
 
 let addScore = 0;
 
-if(diff < 70){
+if(diff < 75){
 
 judgeText.innerText =
 "PERFECT ✨";
 
 addScore = 300;
 
-}else if(diff < 120){
+}else if(diff < 130){
 
 judgeText.innerText =
 "GREAT 🔥";
 
 addScore = 200;
 
-}else if(diff < 170){
+}else if(diff < 180){
 
 judgeText.innerText =
 "GOOD 👍";
@@ -1035,7 +1036,7 @@ maxCombo = combo;
 
 }
 
-/* 🌟コンボ表示 */
+/* コンボ表示 */
 showComboEffect();
 
 /* スコア */
