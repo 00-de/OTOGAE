@@ -84,14 +84,23 @@ z-index:100;
 
 /* タイトル */
 .song-title{
-font-size:20px;
+
+font-size:18px;
 font-weight:bold;
+
 text-shadow:0 0 10px black;
+
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+
+max-width:65%;
+
 }
 
 /* スコア */
 .score{
-font-size:20px;
+font-size:18px;
 font-weight:bold;
 }
 
@@ -381,7 +390,7 @@ scale(1);
 <div class="top-ui">
 
 <div class="song-title">
-🎵 風になる合図 / :contentReference[oaicite:0]{index=0}
+🎵 風になる合図 / 蓮
 </div>
 
 <div class="score"
@@ -544,21 +553,17 @@ function generateNotes(){
 
 notes = [];
 
-/* 曲長さ取得 */
 const songLength =
 music.duration * 1000;
 
-/* 読み込み前 */
 if(
 !songLength ||
 isNaN(songLength)
 ){
-
 return;
-
 }
 
-/* 曲終了まで生成 */
+/* 曲終了まで */
 for(
 let i = 1000;
 i < songLength;
@@ -587,15 +592,12 @@ if(started) return;
 
 started = true;
 
-/* 譜面再生成 */
 generateNotes();
 
-/* ボタン消す */
 document.querySelector(
 ".start-btn"
 ).style.display = "none";
 
-/* 音楽再生 */
 music.play();
 
 gameLoop();
@@ -626,7 +628,6 @@ note.spawned = true;
 
 });
 
-/* 曲終了まで */
 if(!music.paused){
 
 requestAnimationFrame(
@@ -654,7 +655,6 @@ lane.appendChild(note);
 
 let pos = -30;
 
-/* 落下速度 */
 const move = setInterval(()=>{
 
 if(paused) return;
@@ -664,7 +664,6 @@ pos += noteSpeed;
 note.style.top =
 pos + "px";
 
-/* 画面下 */
 if(pos >= window.innerHeight){
 
 if(
@@ -781,7 +780,7 @@ combo;
 
 }
 
-/* エフェクト */
+/* タップ演出 */
 function tapEffect(lane){
 
 const effect =
@@ -874,7 +873,7 @@ judgeText.innerText =
 
 }
 
-/* スマホ */
+/* スマホ操作 */
 lanes.forEach(
 (lane,index)=>{
 
@@ -893,7 +892,7 @@ hitNote(index);
 }
 );
 
-/* PC */
+/* PC操作 */
 document.addEventListener(
 "keydown",
 (e)=>{
