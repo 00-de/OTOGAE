@@ -637,14 +637,31 @@ READY
 <span class="result-value" id="result-miss">0</span>
 </div>
 
+<div class="result-row">
+<span class="result-label">減点合計</span>
+<span class="result-value" id="result-deduct"
+style="color:#ff7070;">-0</span>
+</div>
+
 </div>
 
 <div class="result-divider"></div>
 
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+
 <button class="result-btn"
-onclick="closeResult()">
+onclick="closeResult()"
+style="background:white;color:#333;">
 ▶ もう一度プレイ
 </button>
+
+<button class="result-btn"
+onclick="goToStart()"
+style="background:rgba(255,255,255,0.2);color:white;box-shadow:0 0 10px rgba(255,255,255,0.3);">
+🏠 スタートに戻る
+</button>
+
+</div>
 
 </div>
 
@@ -810,6 +827,7 @@ let combo = 0;
 let score = 0;
 let miss = 0;
 let maxCombo = 0;
+let totalDeduct = 0;
 
 let started = false;
 let paused = false;
@@ -906,6 +924,7 @@ score = 0;
 combo = 0;
 miss = 0;
 maxCombo = 0;
+totalDeduct = 0;
 
 scoreText.innerText =
 "Score : 0";
@@ -1021,6 +1040,13 @@ combo;
 judgeText.innerText =
 "MISS ❌";
 
+/* ノート通過ミス減点 */
+const deduct = 200;
+totalDeduct += deduct;
+score = Math.max(0, score - deduct);
+scoreText.innerText =
+"Score : " + score;
+
 }
 
 note.remove();
@@ -1055,6 +1081,13 @@ combo = 0;
 
 comboText.innerText =
 combo;
+
+/* 空タップ減点 */
+const deduct = 200;
+totalDeduct += deduct;
+score = Math.max(0, score - deduct);
+scoreText.innerText =
+"Score : " + score;
 
 return;
 
@@ -1110,6 +1143,13 @@ combo = 0;
 
 comboText.innerText =
 combo;
+
+/* タイミングミス減点 */
+const deduct = 200;
+totalDeduct += deduct;
+score = Math.max(0, score - deduct);
+scoreText.innerText =
+"Score : " + score;
 
 return;
 
@@ -1232,25 +1272,73 @@ judgeText.innerText =
 
 }
 
-/* リセット */
+/* リセット → スタート画面へ */
 function resetScore(){
+
+music.pause();
+music.currentTime = 0;
+
+/* ノーツ削除 */
+document.querySelectorAll(".note")
+.forEach(note=>{
+clearInterval(note.move);
+note.remove();
+});
 
 score = 0;
 combo = 0;
 miss = 0;
+maxCombo = 0;
+totalDeduct = 0;
 
-scoreText.innerText =
-"Score : 0";
+started = false;
+paused = false;
 
-comboText.innerText =
-"0";
+scoreText.innerText = "Score : 0";
+comboText.innerText = "0";
+judgeText.innerText = "READY";
+fullcombo.style.display = "none";
+resultScreen.style.display = "none";
 
-judgeText.innerText =
-"RESET ✨";
+setPlayingUI(false);
+
+startMenuEl.style.display = "flex";
 
 }
 
-/* 初級 */
+/* リザルトから閉じてもう一度 */
+function closeResult(){
+
+resultScreen.style.display = "none";
+fullcombo.style.display = "none";
+startMenuEl.style.display = "flex";
+
+}
+
+/* スタート画面に戻る */
+function goToStart(){
+
+resultScreen.style.display = "none";
+fullcombo.style.display = "none";
+
+score = 0;
+combo = 0;
+miss = 0;
+maxCombo = 0;
+totalDeduct = 0;
+
+started = false;
+paused = false;
+
+scoreText.innerText = "Score : 0";
+comboText.innerText = "0";
+judgeText.innerText = "READY";
+
+setPlayingUI(false);
+
+startMenuEl.style.display = "flex";
+
+}
 function setEasyMode(){
 
 noteSpeed = 2;
@@ -1319,6 +1407,9 @@ hitNote(3);
 }
 );
 
+const resultDeductEl =
+document.getElementById("result-deduct");
+
 /* 曲終了 */
 music.addEventListener(
 "ended",
@@ -1330,6 +1421,7 @@ judgeText.innerText = "";
 resultScoreEl.innerText = score;
 resultComboEl.innerText = maxCombo;
 resultMissEl.innerText = miss;
+resultDeductEl.innerText = "-" + totalDeduct;
 
 if(miss === 0){
 resultFullcomboBadge.style.display = "block";
