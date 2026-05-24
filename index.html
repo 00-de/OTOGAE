@@ -1271,20 +1271,6 @@ judgeText.innerText =
 
 addScore = 300;
 
-/* BAD EARLY/LATE (50～200点) */
-}else if(diff < 300){
-
-const ratio =
-1 - (diff - 220) / 80;
-
-addScore =
-Math.round(50 + ratio * 150);
-
-judgeText.style.color = "#ffaa44";
-judgeText.innerText =
-"BAD 😬" + timing +
-" (+" + addScore + ")";
-
 /* MISS */
 }else{
 
@@ -1316,25 +1302,21 @@ if(combo > maxCombo){
 maxCombo = combo;
 }
 
-/* コンボ倍率 */
-let comboBonus = 1.5;
+/* コンボ倍率（固定定義） */
+const COMBO_RATES = [
+{ min: 101, bonus: 15  },
+{ min:  51, bonus: 10  },
+{ min:  32, bonus:  8  },
+{ min:  12, bonus:  2.5},
+{ min:   1, bonus:  2.0}
+];
 
-if(combo > 100){
-
-comboBonus = 12;
-
-}else if(combo > 50){
-
-comboBonus = 9;
-
-}else if(combo > 31){
-
-comboBonus = 5;
-
-}else if(combo > 11){
-
-comboBonus = 2.0;
-
+let comboBonus = 2.0;
+for(const r of COMBO_RATES){
+if(combo >= r.min){
+comboBonus = r.bonus;
+break;
+}
 }
 
 /* スコア加算（整数） */
