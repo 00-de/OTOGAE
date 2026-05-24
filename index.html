@@ -1230,7 +1230,7 @@ clearInterval(note.move);
 note.remove();
 
 /* 演出 */
-tapEffect(lane);
+tapEffect(lane, judgeText.style.color);
 
 /* コンボ演出 */
 if(combo % 10 === 0){
@@ -1250,7 +1250,9 @@ judgeText.innerText =
 }
 
 /* エフェクト */
-function tapEffect(lane){
+function tapEffect(lane, color){
+
+color = color || "rgba(255,255,255,0.5)";
 
 const effect =
 document.createElement("div");
@@ -1258,6 +1260,11 @@ document.createElement("div");
 effect.classList.add(
 "tap-effect"
 );
+
+effect.style.background = color;
+effect.style.boxShadow =
+"0 0 20px " + color +
+", 0 0 40px " + color;
 
 lane.appendChild(effect);
 
