@@ -1201,7 +1201,8 @@ lane.querySelectorAll(".note");
 
 if(laneNotes.length === 0){
 
-/* レーンにノートなし → ペナルティなし、コンボのみリセット */
+/* 空タップ → MISSカウント・コンボリセット・減点なし */
+miss++;
 combo = 0;
 comboText.innerText = combo;
 judgeText.style.color = "#ff6060";
@@ -1280,6 +1281,7 @@ judgeText.style.color = "#ff6060";
 judgeText.innerText =
 "MISS ❌";
 
+miss++;
 combo = 0;
 
 comboText.innerText =
@@ -1349,17 +1351,17 @@ note.remove();
 tapEffect(lane, judgeText.style.color);
 
 /* コンボ演出 */
-if(combo % 10 === 0){
-
-judgeText.innerText =
-combo + " COMBO 🔥";
-
-}
-
 if(combo >= 50){
 
+judgeText.style.color = "#ff66cc";
 judgeText.innerText =
 "🔥 AMAZING COMBO 🔥";
+
+}else if(combo % 10 === 0){
+
+judgeText.style.color = "#ffe066";
+judgeText.innerText =
+combo + " COMBO 🔥";
 
 }
 
@@ -1574,10 +1576,11 @@ music.addEventListener(
 
 judgeText.innerText = "";
 
-/* 成功率計算 */
+/* 成功率計算：ノート通過ミスのみで計算（totalNotesベース） */
+const noteMiss = totalNotes - hitNotes;
 const accuracy = totalNotes > 0
 ? Math.max(0, Math.round(
-((totalNotes - miss) / totalNotes) * 100
+((totalNotes - noteMiss) / totalNotes) * 100
 ))
 : 0;
 
