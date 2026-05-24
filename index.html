@@ -1152,10 +1152,15 @@ note.getBoundingClientRect();
 const hitY =
 window.innerHeight - 155;
 
+/* 符号付きdiff：マイナス=早め、プラス=遅め */
+const signedDiff =
+rect.top - hitY;
+
 const diff =
-Math.abs(
-rect.top - hitY
-);
+Math.abs(signedDiff);
+
+const timing =
+signedDiff < 0 ? " ⏩EARLY" : " ⏪LATE";
 
 let addScore = 0;
 
@@ -1168,23 +1173,37 @@ judgeText.innerText =
 
 addScore = 1000;
 
-/* GREAT */
+/* GREAT EARLY/LATE */
 }else if(diff < 160){
 
 judgeText.style.color = "#66dfff";
 judgeText.innerText =
-"GREAT 🔥";
+"GREAT 🔥" + timing;
 
 addScore = 600;
 
-/* GOOD */
+/* GOOD EARLY/LATE */
 }else if(diff < 220){
 
 judgeText.style.color = "#a0ff88";
 judgeText.innerText =
-"GOOD 👍";
+"GOOD 👍" + timing;
 
 addScore = 300;
+
+/* BAD EARLY/LATE (50～200点) */
+}else if(diff < 300){
+
+const ratio =
+1 - (diff - 220) / 80;
+
+addScore =
+Math.round(50 + ratio * 150);
+
+judgeText.style.color = "#ffaa44";
+judgeText.innerText =
+"BAD 😬" + timing +
+" (+" + addScore + ")";
 
 /* MISS */
 }else{
