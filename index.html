@@ -1309,39 +1309,38 @@ return;
 
 }
 
-/* コンボ倍率 */
-let comboBonus = 1.5;
-
-if(combo >= 100){
-
-comboBonus = 12;
-
-}else if(combo >= 50){
-
-comboBonus = 9;
-
-}else if(combo >= 31){
-
-comboBonus = 5;
-
-}else if(combo >= 11){
-
-comboBonus = 2.0;
-
-}
-
-/* スコア */
-score +=
-Math.round(addScore * comboBonus);
-
+/* combo を先に増やしてから倍率計算 */
 combo++;
 
 if(combo > maxCombo){
 maxCombo = combo;
 }
 
-comboText.innerText =
-combo;
+/* コンボ倍率 */
+let comboBonus = 1.5;
+
+if(combo > 100){
+
+comboBonus = 12;
+
+}else if(combo > 50){
+
+comboBonus = 9;
+
+}else if(combo > 31){
+
+comboBonus = 5;
+
+}else if(combo > 11){
+
+comboBonus = 2.0;
+
+}
+
+/* スコア加算（整数） */
+score += Math.round(addScore * comboBonus);
+
+comboText.innerText = combo;
 
 scoreText.innerText =
 "Score : " + score;
