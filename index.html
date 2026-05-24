@@ -1299,27 +1299,23 @@ return;
 }
 
 /* コンボ倍率 */
-let comboBonus = 1;
+let comboBonus = 1.5;
 
 if(combo >= 100){
 
-comboBonus = 10;
+comboBonus = 12;
 
 }else if(combo >= 50){
 
-comboBonus = 7;
+comboBonus = 9;
 
-}else if(combo >= 30){
+}else if(combo >= 31){
 
 comboBonus = 5;
 
-}else if(combo >= 10){
+}else if(combo >= 11){
 
-comboBonus = 3;
-
-}else if(combo >= 5){
-
-comboBonus = 2;
+comboBonus = 2.0;
 
 }
 
