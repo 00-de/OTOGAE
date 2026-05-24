@@ -13,6 +13,25 @@ user-scalable=no
 
 <title>DayDream Beats!!</title>
 
+<!-- PWA: ホーム画面から全画面起動 -->
+<meta name="apple-mobile-web-app-capable"
+content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
+
+<meta name="apple-mobile-web-app-title"
+content="DayDream Beats">
+
+<meta name="mobile-web-app-capable"
+content="yes">
+
+<meta name="theme-color"
+content="#001d3d">
+
+<link rel="manifest"
+href="manifest.json">
+
 <style>
 
 *{
@@ -1446,6 +1465,14 @@ fullcombo.style.display = "none";
 
 startMenuEl.style.display = "flex";
 
+}
+
+/* Service Worker 登録 */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(err => console.log("SW error:", err));
+  });
 }
 
 </script>
