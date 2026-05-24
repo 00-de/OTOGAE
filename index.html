@@ -461,6 +461,60 @@ cursor: pointer;
 backdrop-filter: blur(4px);
 box-shadow: 0 0 8px rgba(255,255,255,0.3);
 }
+/* 成功率オーバーレイ */
+#accuracy-overlay{
+position:absolute;
+top:0;left:0;
+width:100%;height:100%;
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:10px;
+z-index:350;
+background:rgba(0,10,40,0.75);
+backdrop-filter:blur(4px);
+}
+#accuracy-label{
+font-size:16px;
+font-weight:bold;
+letter-spacing:4px;
+color:#aee8ff;
+opacity:0;
+transition:opacity 0.6s ease;
+}
+#accuracy-number{
+font-size:88px;
+font-weight:bold;
+color:white;
+text-shadow:
+0 0 30px #8ce8ff,
+0 0 60px #8ce8ff;
+opacity:0;
+transform:scale(0.6);
+transition:
+opacity 0.6s ease,
+transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+#accuracy-sub{
+font-size:18px;
+font-weight:bold;
+color:gold;
+text-shadow:0 0 16px gold;
+opacity:0;
+transition:opacity 0.6s ease 0.4s;
+min-height:28px;
+text-align:center;
+}
+#accuracy-overlay.show #accuracy-label,
+#accuracy-overlay.show #accuracy-number,
+#accuracy-overlay.show #accuracy-sub{
+opacity:1;
+}
+#accuracy-overlay.show #accuracy-number{
+transform:scale(1);
+}
+
 #result-screen{
 position:absolute;
 top:0;
@@ -718,6 +772,17 @@ style="background:rgba(255,255,255,0.2);color:white;box-shadow:0 0 10px rgba(255
 
 </div>
 
+<!-- 成功率オーバーレイ（ゲーム画面上） -->
+<div id="accuracy-overlay">
+
+<div id="accuracy-label">SUCCESS RATE</div>
+
+<div id="accuracy-number">0%</div>
+
+<div id="accuracy-sub"></div>
+
+</div>
+
 <!-- スタート -->
 <div class="start-menu" id="startMenu">
 
@@ -955,6 +1020,10 @@ Math.random() * 4
 
 }
 
+/* 総ノーツ数を確定 */
+totalNotes = notes.length;
+hitNotes = 0;
+
 }
 
 /* 再生して開始 */
@@ -1037,7 +1106,6 @@ if(
 currentTime >= note.time - 2200
 ){
 
-totalNotes++;
 createNote(note);
 
 note.spawned = true;
@@ -1506,20 +1574,63 @@ music.addEventListener(
 
 judgeText.innerText = "";
 
+/* 成功率計算 */
+const accuracy = totalNotes > 0
+? Math.max(0, Math.round(
+((totalNotes - miss) / totalNotes) * 100
+))
+: 0;
+
+/* ① ゲーム画面に成功率を大きく表示 */
+const overlay =
+document.getElementById("accuracy-overlay");
+
+document.getElementById("accuracy-number")
+.innerText = accuracy + "%";
+
+document.getElementById("accuracy-label")
+.innerText = "SUCCESS RATE";
+
+const subEl =
+document.getElementById("accuracy-sub");
+
+if(accuracy === 100){
+subEl.innerText =
+"🏆 SUPER EXCELLENT\nCONGRATULATIONS! 🏆";
+}else if(accuracy >= 90){
+subEl.innerText = "⭐ EXCELLENT!";
+}else if(accuracy >= 70){
+subEl.innerText = "👏 GREAT JOB!";
+}else{
+subEl.innerText = "";
+}
+
+overlay.style.display = "flex";
+
+/* show クラスでアニメーション発火 */
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
+overlay.classList.add("show");
+});
+});
+
+/* ② 2.5秒後にスコア画面へ */
+setTimeout(()=>{
+
+overlay.classList.remove("show");
+
+setTimeout(()=>{
+
+overlay.style.display = "none";
+
 /* リザルト表示 */
 resultScoreEl.innerText = score;
 resultComboEl.innerText = maxCombo;
 resultMissEl.innerText = miss;
 resultDeductEl.innerText = "-" + totalDeduct;
 
-/* 成功率 */
-const accuracy = totalNotes > 0
-? Math.round((hitNotes / totalNotes) * 100)
-: 0;
-
 resultAccuracyEl.innerText = accuracy + "%";
 
-/* 100%メッセージ */
 if(accuracy === 100){
 resultPerfectMsg.style.display = "block";
 }else{
@@ -1536,6 +1647,10 @@ resultScreen.style.display = "flex";
 
 /* プレイ終了UIに戻す */
 setPlayingUI(false);
+
+}, 400);
+
+}, 2500);
 
 }
 );
