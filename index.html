@@ -673,6 +673,29 @@ READY
 style="color:#ff7070;">-0</span>
 </div>
 
+<div class="result-row">
+<span class="result-label">SUCCESS RATE</span>
+<span class="result-value" id="result-accuracy"
+style="color:#ffe066;">0%</span>
+</div>
+
+</div>
+
+<!-- 100%達成メッセージ -->
+<div id="result-perfect-msg"
+style="
+display:none;
+text-align:center;
+font-size:13px;
+font-weight:bold;
+color:gold;
+letter-spacing:1px;
+line-height:1.6;
+text-shadow:0 0 12px gold, 0 0 24px gold;
+animation: resultPulse 1.2s ease-in-out infinite;
+padding: 0 10px;
+">
+🏆 SUPER EXCELLENT<br>CONGRATULATIONS! 🏆
 </div>
 
 <div class="result-divider"></div>
@@ -858,6 +881,8 @@ let score = 0;
 let miss = 0;
 let maxCombo = 0;
 let totalDeduct = 0;
+let totalNotes = 0;
+let hitNotes = 0;
 
 let started = false;
 let paused = false;
@@ -955,6 +980,8 @@ combo = 0;
 miss = 0;
 maxCombo = 0;
 totalDeduct = 0;
+totalNotes = 0;
+hitNotes = 0;
 
 scoreText.innerText =
 "Score : 0";
@@ -1010,6 +1037,7 @@ if(
 currentTime >= note.time - 2200
 ){
 
+totalNotes++;
 createNote(note);
 
 note.spawned = true;
@@ -1224,6 +1252,7 @@ scoreText.innerText =
 
 /* ノーツ削除 */
 note.dataset.hit = "true";
+hitNotes++;
 
 clearInterval(note.move);
 
@@ -1359,6 +1388,8 @@ combo = 0;
 miss = 0;
 maxCombo = 0;
 totalDeduct = 0;
+totalNotes = 0;
+hitNotes = 0;
 
 started = false;
 paused = false;
@@ -1440,6 +1471,12 @@ hitNote(3);
 }
 );
 
+const resultAccuracyEl =
+document.getElementById("result-accuracy");
+
+const resultPerfectMsg =
+document.getElementById("result-perfect-msg");
+
 const resultDeductEl =
 document.getElementById("result-deduct");
 
@@ -1455,6 +1492,20 @@ resultScoreEl.innerText = score;
 resultComboEl.innerText = maxCombo;
 resultMissEl.innerText = miss;
 resultDeductEl.innerText = "-" + totalDeduct;
+
+/* 成功率 */
+const accuracy = totalNotes > 0
+? Math.round((hitNotes / totalNotes) * 100)
+: 0;
+
+resultAccuracyEl.innerText = accuracy + "%";
+
+/* 100%メッセージ */
+if(accuracy === 100){
+resultPerfectMsg.style.display = "block";
+}else{
+resultPerfectMsg.style.display = "none";
+}
 
 if(miss === 0){
 resultFullcomboBadge.style.display = "block";
