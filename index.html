@@ -256,9 +256,11 @@ z-index:100;
 text-align:right;
 
 text-shadow:
-0 0 8px white;
+0 0 8px currentColor;
 
 opacity: 0.9;
+
+transition: color 0.1s ease;
 }
 
 /* レーン */
@@ -470,7 +472,12 @@ display:none;
 flex-direction:column;
 align-items:center;
 justify-content:center;
-gap:18px;
+
+padding: 20px 16px;
+box-sizing: border-box;
+overflow-y: auto;
+
+gap:12px;
 
 z-index:400;
 
@@ -485,9 +492,11 @@ backdrop-filter: blur(6px);
 }
 
 .result-title{
-font-size:38px;
+font-size:26px;
 font-weight:bold;
-letter-spacing:4px;
+letter-spacing:3px;
+text-align:center;
+white-space:nowrap;
 text-shadow:
 0 0 20px #8ce8ff,
 0 0 40px #8ce8ff;
@@ -496,12 +505,13 @@ animation: resultPulse 1.2s ease-in-out infinite;
 
 @keyframes resultPulse{
 0%{ transform:scale(1); }
-50%{ transform:scale(1.05); }
+50%{ transform:scale(1.04); }
 100%{ transform:scale(1); }
 }
 
 .result-divider{
-width:220px;
+width:80%;
+max-width:260px;
 height:2px;
 background:
 linear-gradient(
@@ -515,33 +525,35 @@ transparent
 .result-rows{
 display:flex;
 flex-direction:column;
-gap:10px;
-width:260px;
+gap:8px;
+width:100%;
+max-width:280px;
 }
 
 .result-row{
 display:flex;
 justify-content:space-between;
 align-items:center;
-font-size:18px;
+font-size:16px;
 font-weight:bold;
 }
 
 .result-label{
 color:#aee8ff;
-font-size:15px;
+font-size:13px;
 }
 
 .result-value{
-font-size:22px;
+font-size:18px;
 text-shadow: 0 0 10px white;
 }
 
 #result-fullcombo-badge{
 display:none;
-font-size:28px;
+font-size:22px;
 font-weight:bold;
 color:gold;
+text-align:center;
 text-shadow:
 0 0 20px gold,
 0 0 40px gold;
@@ -549,15 +561,14 @@ animation:pulse 1s infinite;
 }
 
 .result-btn{
-padding:16px 40px;
-font-size:20px;
+padding:12px 28px;
+font-size:16px;
 font-weight:bold;
 border:none;
 border-radius:18px;
 background:white;
 color:#333;
 box-shadow: 0 0 20px white;
-margin-top:8px;
 }
 
 </style>
@@ -1056,6 +1067,7 @@ combo = 0;
 comboText.innerText =
 combo;
 
+judgeText.style.color = "#ff6060";
 judgeText.innerText =
 "MISS ❌";
 
@@ -1093,20 +1105,11 @@ lane.querySelectorAll(".note");
 
 if(laneNotes.length === 0){
 
-judgeText.innerText =
-"MISS ❌";
-
+/* レーンにノートなし → ペナルティなし、コンボのみリセット */
 combo = 0;
-
-comboText.innerText =
-combo;
-
-/* 空タップ減点 */
-const deduct = 200;
-totalDeduct += deduct;
-score = Math.max(0, score - deduct);
-scoreText.innerText =
-"Score : " + score;
+comboText.innerText = combo;
+judgeText.style.color = "#ff6060";
+judgeText.innerText = "MISS ❌";
 
 return;
 
@@ -1119,7 +1122,7 @@ const rect =
 note.getBoundingClientRect();
 
 const hitY =
-window.innerHeight - 160;
+window.innerHeight - 155;
 
 const diff =
 Math.abs(
@@ -1129,24 +1132,27 @@ rect.top - hitY
 let addScore = 0;
 
 /* PERFECT */
-if(diff < 60){
+if(diff < 100){
 
+judgeText.style.color = "#ffe066";
 judgeText.innerText =
 "PERFECT ✨";
 
 addScore = 1000;
 
 /* GREAT */
-}else if(diff < 100){
+}else if(diff < 160){
 
+judgeText.style.color = "#66dfff";
 judgeText.innerText =
 "GREAT 🔥";
 
 addScore = 600;
 
 /* GOOD */
-}else if(diff < 140){
+}else if(diff < 220){
 
+judgeText.style.color = "#a0ff88";
 judgeText.innerText =
 "GOOD 👍";
 
@@ -1155,6 +1161,7 @@ addScore = 300;
 /* MISS */
 }else{
 
+judgeText.style.color = "#ff6060";
 judgeText.innerText =
 "MISS ❌";
 
