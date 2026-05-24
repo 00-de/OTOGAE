@@ -1085,9 +1085,20 @@ setPlayingUI(true);
 
 music.play();
 
+/* 曲長さが取得できていれば即生成、なければ待つ */
+if(music.duration && !isNaN(music.duration)){
 generateNotes();
-
 gameLoop();
+}else{
+music.addEventListener(
+"loadedmetadata",
+()=>{
+generateNotes();
+gameLoop();
+},
+{ once: true }
+);
+}
 
 }
 
@@ -1321,7 +1332,7 @@ comboBonus = 2.0;
 
 /* スコア */
 score +=
-addScore * comboBonus;
+Math.round(addScore * comboBonus);
 
 combo++;
 
