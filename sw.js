@@ -1,9 +1,15 @@
-const CACHE = "daydream-beats-v1";
+const CACHE = "daydream-beats-v3";
 
 const FILES = [
   "./index.html",
   "./kaze.mp3",
-  "./bg.jpg"
+  "./きらめく方程式.mp3",
+  "./bg.jpg",
+  "./combo30.mp3",
+  "./combo50.mp3",
+  "./combo70.mp3",
+  "./combo100.mp3",
+  "./miss.mp3"
 ];
 
 self.addEventListener("install", e => {

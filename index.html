@@ -360,6 +360,59 @@ transform:scaleY(2);
 
 }
 
+/* 曲選択メニュー */
+.song-select-title{
+font-size:16px;
+font-weight:bold;
+letter-spacing:3px;
+color:#aee8ff;
+text-shadow:0 0 10px #aee8ff;
+margin-bottom:4px;
+text-align:center;
+}
+
+.song-list{
+display:flex;
+flex-direction:column;
+gap:10px;
+width:100%;
+}
+
+.song-btn{
+padding:14px 20px;
+border:none;
+border-radius:16px;
+background:rgba(255,255,255,0.15);
+color:white;
+font-size:15px;
+font-weight:bold;
+text-align:left;
+box-shadow:0 0 12px rgba(140,232,255,0.3);
+border:1px solid rgba(140,232,255,0.3);
+line-height:1.5;
+}
+
+.song-btn:active{
+background:rgba(255,255,255,0.35);
+}
+
+.song-btn .song-btn-title{
+font-size:16px;
+display:block;
+}
+
+.song-btn .song-btn-artist{
+font-size:12px;
+color:#aee8ff;
+display:block;
+}
+
+.song-btn.selected{
+background:rgba(140,232,255,0.3);
+box-shadow:0 0 20px rgba(140,232,255,0.6);
+border-color:#8ce8ff;
+}
+
 /* スタート画面 */
 .start-menu{
 
@@ -646,7 +699,7 @@ box-shadow: 0 0 20px white;
 
 <div class="score"
 id="score">
-Score : 0
+Score : 0.00
 </div>
 
 </div>
@@ -666,8 +719,9 @@ onclick="resetScore()">
 
 </div>
 
-<!-- 難易度（プレイ中は非表示） -->
-<div class="mode-area" id="modeArea">
+<!-- 難易度（スタートメニュー内に移動・ここは非表示） -->
+<div class="mode-area" id="modeArea"
+style="display:none!important;visibility:hidden;pointer-events:none;">
 
 <button class="mode-btn"
 onclick="setEasyMode()">
@@ -786,9 +840,36 @@ style="background:rgba(255,255,255,0.2);color:white;box-shadow:0 0 10px rgba(255
 <!-- スタート -->
 <div class="start-menu" id="startMenu">
 
+<div class="song-select-title">🎵 SELECT SONG</div>
+
+<div class="song-list">
+
+<button class="song-btn selected"
+id="songBtn0"
+onclick="selectSong(0)">
+<span class="song-btn-title">風になる合図</span>
+<span class="song-btn-artist">蓮</span>
+</button>
+
+<button class="song-btn"
+id="songBtn1"
+onclick="selectSong(1)">
+<span class="song-btn-title">きらめく方程式</span>
+<span class="song-btn-artist">DayDream プラス</span>
+</button>
+
+</div>
+
+<div class="mode-select-row"
+style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
+<button class="mode-btn" onclick="setEasyMode()">🌟 初級</button>
+<button class="mode-btn" onclick="setHardMode()">🔥 上級</button>
+</div>
+
 <button class="menu-btn"
-onclick="restartGame()">
-▶ 再生してスタート
+onclick="restartGame()"
+style="margin-top:4px;">
+▶ スタート
 </button>
 
 </div>
@@ -825,6 +906,13 @@ onclick="restartGame()">
 <audio id="music"
 src="kaze.mp3">
 </audio>
+
+<!-- SE -->
+<audio id="se-combo30"  src="combo30.mp3"  preload="auto"></audio>
+<audio id="se-combo50"  src="combo50.mp3"  preload="auto"></audio>
+<audio id="se-combo70"  src="combo70.mp3"  preload="auto"></audio>
+<audio id="se-combo100" src="combo100.mp3" preload="auto"></audio>
+<audio id="se-miss"     src="miss.mp3"     preload="auto"></audio>
 
 <script>
 
@@ -874,6 +962,60 @@ btn.innerText = "✕";
 }
 );
 
+/* スコア表示フォーマット（カンマ区切り・小数2桁） */
+function formatScore(val){
+const fixed = val.toFixed(2);
+const parts = fixed.split(".");
+parts[0] = parts[0].replace(
+/\B(?=(\d{3})+(?!\d))/g, ","
+);
+return parts.join(".");
+}
+
+/* SE再生 */
+function playSE(id){
+const el = document.getElementById(id);
+if(!el) return;
+el.currentTime = 0;
+el.play().catch(()=>{});
+}
+
+/* 曲データ */
+const SONGS = [
+{
+title: "風になる合図",
+artist: "蓮",
+src: "kaze.mp3"
+},
+{
+title: "きらめく方程式",
+artist: "DayDream プラス",
+src: "きらめく方程式.mp3"
+}
+];
+
+let currentSong = 0;
+
+/* 曲選択 */
+function selectSong(index){
+
+currentSong = index;
+
+/* ボタンのハイライト */
+SONGS.forEach((_,i)=>{
+const btn =
+document.getElementById(
+"songBtn" + i
+);
+if(btn){
+btn.classList.toggle(
+"selected",
+i === index
+);
+}
+});
+
+}
 /* 拡大防止 */
 document.addEventListener(
 "dblclick",
@@ -948,6 +1090,12 @@ let maxCombo = 0;
 let totalDeduct = 0;
 let totalNotes = 0;
 let hitNotes = 0;
+
+/* 連続ストリーク */
+let exStreak = 0;
+let pfStreak = 0;
+let grStreak = 0;
+let gdStreak = 0;
 
 let started = false;
 let paused = false;
@@ -1029,6 +1177,16 @@ hitNotes = 0;
 /* 再生して開始 */
 function restartGame(){
 
+/* 選択曲を反映 */
+const song = SONGS[currentSong];
+
+music.src = song.src;
+
+document.querySelector(".song-title")
+.innerText =
+"🎵 " + song.title +
+" / " + song.artist;
+
 music.pause();
 
 music.currentTime = 0;
@@ -1051,9 +1209,13 @@ maxCombo = 0;
 totalDeduct = 0;
 totalNotes = 0;
 hitNotes = 0;
+exStreak = 0;
+pfStreak = 0;
+grStreak = 0;
+gdStreak = 0;
 
 scoreText.innerText =
-"Score : 0";
+"Score : 0.00";
 
 comboText.innerText =
 "0";
@@ -1177,13 +1339,15 @@ combo;
 judgeText.style.color = "#ff6060";
 judgeText.innerText =
 "MISS ❌";
-
-/* ノート通過ミス減点 */
-const deduct = 200;
+playSE("se-miss");
+const deduct = 300;
 totalDeduct += deduct;
 score = Math.max(0, score - deduct);
 scoreText.innerText =
-"Score : " + score;
+"Score : " + formatScore(score);
+
+exStreak = 0; pfStreak = 0;
+grStreak = 0; gdStreak = 0;
 
 }
 
@@ -1212,12 +1376,22 @@ lane.querySelectorAll(".note");
 
 if(laneNotes.length === 0){
 
-/* 空タップ → MISSカウント・コンボリセット・減点なし */
+/* 空タップ → MISSカウント・コンボリセット・-200点 */
 miss++;
 combo = 0;
 comboText.innerText = combo;
 judgeText.style.color = "#ff6060";
 judgeText.innerText = "MISS ❌";
+playSE("se-miss");
+
+exStreak = 0; pfStreak = 0;
+grStreak = 0; gdStreak = 0;
+
+const deduct = 200;
+totalDeduct += deduct;
+score = Math.max(0, score - deduct);
+scoreText.innerText =
+"Score : " + formatScore(score);
 
 return;
 
@@ -1244,52 +1418,127 @@ signedDiff < 0 ? " ⏩EARLY" : " ⏪LATE";
 
 let addScore = 0;
 
+/* EXCELLENT（最高精度：diff < 40） */
+if(diff < 40){
+
+judgeText.style.color = "#ff44ff";
+judgeText.innerText = "EXCELLENT ☆彡";
+
+/* タップ位置ボーナス：10点単位 */
+const posBonus =
+Math.round((1 - diff / 40) * 10) * 10;
+
+addScore = 1000 + posBonus;
+
+/* ストリーク */
+exStreak++;
+pfStreak = 0; grStreak = 0; gdStreak = 0;
+
+let streakBonus = 0;
+if(exStreak % 15 === 0){
+streakBonus = 25000;
+judgeText.innerText =
+"⭐ EXCELLENT " + exStreak +
+" STREAK! +" + streakBonus;
+}
+
+addScore += streakBonus;
+
 /* PERFECT */
-if(diff < 100){
+}else if(diff < 100){
 
 judgeText.style.color = "#ffe066";
+judgeText.innerText = "PERFECT ✨";
+
+const posBonus =
+Math.round((1 - (diff - 40) / 60) * 10) * 10;
+
+addScore = 500 + posBonus;
+
+exStreak = 0;
+pfStreak++;
+grStreak = 0; gdStreak = 0;
+
+let streakBonus = 0;
+if(pfStreak % 10 === 0){
+streakBonus = 10000;
 judgeText.innerText =
-"PERFECT ✨";
+"✨ PERFECT " + pfStreak +
+" STREAK! +" + streakBonus;
+}
 
-addScore = 1000;
+addScore += streakBonus;
 
-/* GREAT EARLY/LATE */
+/* GREAT */
 }else if(diff < 160){
 
 judgeText.style.color = "#66dfff";
+judgeText.innerText = "GREAT 🔥" + timing;
+
+const posBonus =
+Math.round((1 - (diff - 100) / 60) * 10) * 10;
+
+addScore = 200 + posBonus;
+
+exStreak = 0; pfStreak = 0;
+grStreak++;
+gdStreak = 0;
+
+let streakBonus = 0;
+if(grStreak % 10 === 0){
+streakBonus = 5000;
 judgeText.innerText =
-"GREAT 🔥" + timing;
+"🔥 GREAT " + grStreak +
+" STREAK! +" + streakBonus;
+}
 
-addScore = 600;
+addScore += streakBonus;
 
-/* GOOD EARLY/LATE */
+/* GOOD */
 }else if(diff < 220){
 
 judgeText.style.color = "#a0ff88";
-judgeText.innerText =
-"GOOD 👍" + timing;
+judgeText.innerText = "GOOD 👍" + timing;
 
-addScore = 300;
+const posBonus =
+Math.round((1 - (diff - 160) / 60) * 10) * 10;
+
+addScore = 100 + posBonus;
+
+exStreak = 0; pfStreak = 0; grStreak = 0;
+gdStreak++;
+
+let streakBonus = 0;
+if(gdStreak % 10 === 0){
+streakBonus = 2000;
+judgeText.innerText =
+"👍 GOOD " + gdStreak +
+" STREAK! +" + streakBonus;
+}
+
+addScore += streakBonus;
 
 /* MISS */
 }else{
 
 judgeText.style.color = "#ff6060";
-judgeText.innerText =
-"MISS ❌";
+judgeText.innerText = "MISS ❌";
+playSE("se-miss");
 
 miss++;
 combo = 0;
+comboText.innerText = combo;
 
-comboText.innerText =
-combo;
+/* ストリーク全リセット */
+exStreak = 0; pfStreak = 0;
+grStreak = 0; gdStreak = 0;
 
-/* タイミングミス減点 */
-const deduct = 200;
+/* タイミングミス減点 -300 */
+const deduct = 300;
 totalDeduct += deduct;
 score = Math.max(0, score - deduct);
 scoreText.innerText =
-"Score : " + score;
+"Score : " + formatScore(score);
 
 return;
 
@@ -1319,13 +1568,15 @@ break;
 }
 }
 
-/* スコア加算（整数） */
-score += Math.round(addScore * comboBonus);
+/* スコア加算（小数2桁） */
+score = Math.round(
+(score + addScore * comboBonus) * 100
+) / 100;
 
 comboText.innerText = combo;
 
 scoreText.innerText =
-"Score : " + score;
+"Score : " + formatScore(score);
 
 /* ノーツ削除 */
 note.dataset.hit = "true";
@@ -1338,8 +1589,36 @@ note.remove();
 /* 演出 */
 tapEffect(lane, judgeText.style.color);
 
-/* コンボ演出 */
-if(combo >= 50){
+/* コンボ演出 + SE */
+if(combo >= 100 && combo % 100 === 0){
+
+playSE("se-combo100");
+judgeText.style.color = "#ff66cc";
+judgeText.innerText =
+"🔥 AMAZING COMBO 🔥";
+
+}else if(combo === 70){
+
+playSE("se-combo70");
+judgeText.style.color = "#ff66cc";
+judgeText.innerText =
+"70 COMBO 🔥";
+
+}else if(combo === 50){
+
+playSE("se-combo50");
+judgeText.style.color = "#ff66cc";
+judgeText.innerText =
+"50 COMBO 🔥";
+
+}else if(combo === 30){
+
+playSE("se-combo30");
+judgeText.style.color = "#ffe066";
+judgeText.innerText =
+"30 COMBO 🔥";
+
+}else if(combo >= 50){
 
 judgeText.style.color = "#ff66cc";
 judgeText.innerText =
@@ -1615,7 +1894,7 @@ setTimeout(()=>{
 overlay.style.display = "none";
 
 /* リザルト表示 */
-resultScoreEl.innerText = score;
+resultScoreEl.innerText = formatScore(score);
 resultComboEl.innerText = maxCombo;
 resultMissEl.innerText = miss;
 resultDeductEl.innerText = "-" + totalDeduct;
