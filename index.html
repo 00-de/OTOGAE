@@ -1103,6 +1103,46 @@ el.currentTime = 0;
 el.play().catch(()=>{});
 }
 
+/* iOS音声アンロック：最初のタップで全SEを解放 */
+let audioUnlocked = false;
+
+function unlockAudio(){
+
+if(audioUnlocked) return;
+audioUnlocked = true;
+
+const seIds = [
+"se-combo30",
+"se-combo50",
+"se-combo70",
+"se-combo100",
+"se-miss"
+];
+
+seIds.forEach(id=>{
+const el =
+document.getElementById(id);
+if(!el) return;
+el.volume = 0;
+el.play()
+.then(()=>{ el.pause(); el.volume = 1; })
+.catch(()=>{ el.volume = 1; });
+});
+
+}
+
+document.addEventListener(
+"touchstart",
+unlockAudio,
+{ once: true, passive: true }
+);
+
+document.addEventListener(
+"mousedown",
+unlockAudio,
+{ once: true }
+);
+
 /* 曲データ ─ ここにオブジェクトを追加するだけで曲選択に自動反映 */
 const SONGS = [
 {
