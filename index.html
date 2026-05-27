@@ -32,6 +32,10 @@ content="#001d3d">
 <link rel="manifest"
 href="manifest.json">
 
+<!-- Firebase SDK (compat版) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <style>
 
 *{
@@ -386,6 +390,36 @@ transition: width 0.5s linear;
 font-size: 11px;
 color: rgba(255,255,255,0.7);
 font-weight: bold;
+}
+
+/* コンボ画像オーバーレイ */
+#combo-img-overlay{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0.5);
+z-index:200;
+display:none;
+pointer-events:none;
+opacity:0;
+transition:
+opacity 0.25s ease,
+transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+#combo-img-overlay.show{
+opacity:1;
+transform:translate(-50%,-50%) scale(1);
+}
+
+#combo-img-overlay img{
+width:220px;
+height:220px;
+border-radius:50%;
+object-fit:cover;
+box-shadow:
+0 0 30px rgba(255,255,255,0.8),
+0 0 60px rgba(140,232,255,0.6);
 }
 
 /* ダブルノート（上級） */
@@ -861,6 +895,11 @@ onclick="setHardMode()">
 READY
 </div>
 
+<!-- コンボ画像オーバーレイ -->
+<div id="combo-img-overlay">
+<img id="combo-img" src="" alt="">
+</div>
+
 <!-- フルコン -->
 <div id="fullcombo">
 🌟 FULL COMBO 🌟
@@ -908,6 +947,12 @@ style="color:#ff7070;">-0</span>
 style="color:#ffe066;">0%</span>
 </div>
 
+<div class="result-row">
+<span class="result-label">FAILURE RATE</span>
+<span class="result-value" id="result-failure"
+style="color:#ff7070;">0%</span>
+</div>
+
 </div>
 
 <!-- 100%達成メッセージ -->
@@ -943,6 +988,54 @@ style="background:rgba(255,255,255,0.2);color:white;box-shadow:0 0 10px rgba(255
 🏠 スタートに戻る
 </button>
 
+</div>
+
+<!-- プレイヤー名入力＆スコア送信 -->
+<div id="ranking-submit-area" style="
+width:100%;max-width:280px;
+display:flex;flex-direction:column;gap:8px;
+">
+<input type="text" id="player-name-input"
+maxlength="10"
+placeholder="名前を入力（10文字以内）"
+style="
+padding:8px 12px;
+border-radius:10px;
+border:1px solid rgba(140,232,255,0.4);
+background:rgba(255,255,255,0.1);
+color:white;font-size:14px;
+text-align:center;
+box-sizing:border-box;width:100%;
+">
+<button onclick="submitScore()"
+style="
+padding:10px;border:none;
+border-radius:12px;
+background:rgba(140,232,255,0.3);
+color:#8ce8ff;font-size:14px;
+font-weight:bold;
+border:1px solid rgba(140,232,255,0.5);
+">
+🏆 スコアを登録する
+</button>
+</div>
+
+<!-- ランキング表示 -->
+<div id="ranking-area" style="
+width:100%;max-width:280px;
+">
+<div style="font-size:13px;color:#aee8ff;font-weight:bold;
+text-align:center;margin-bottom:6px;">
+🏆 TOP 10 RANKING
+</div>
+<div id="ranking-list" style="
+display:flex;flex-direction:column;gap:4px;
+font-size:13px;
+">
+<div style="color:rgba(255,255,255,0.5);text-align:center;">
+読み込み中...
+</div>
+</div>
 </div>
 
 </div>
@@ -1084,6 +1177,61 @@ btn.innerText = "✕";
 
 }
 );
+
+/* コンボ達成画像データ */
+const COMBO_IMAGES = {
+30:  ["30.jfif","aoi30.jfif","daichi30.jfif"],
+50:  ["50.jfif","aoi50.jfif","ren50.jfif"],
+70:  ["70.jfif","aoi70.jfif","ren70.jfif","yuma70.jfif"],
+100: ["100.jfif","aoi100.jfif"],
+150: ["150.jfif","yuma150.jfif"],
+200: ["200.jfif"]
+};
+
+let comboImgTimer = null;
+
+function showComboImage(comboCount){
+
+const imgs = COMBO_IMAGES[comboCount];
+if(!imgs || imgs.length === 0) return;
+
+/* ランダムに1枚選ぶ */
+const src =
+imgs[Math.floor(Math.random() * imgs.length)];
+
+const overlay =
+document.getElementById("combo-img-overlay");
+
+const img =
+document.getElementById("combo-img");
+
+/* 前のタイマーをクリア */
+if(comboImgTimer){
+clearTimeout(comboImgTimer);
+}
+
+img.src = src;
+overlay.style.display = "block";
+
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
+overlay.classList.add("show");
+});
+});
+
+/* 2秒後にフェードアウト */
+comboImgTimer = setTimeout(()=>{
+
+overlay.classList.remove("show");
+
+setTimeout(()=>{
+overlay.style.display = "none";
+img.src = "";
+}, 300);
+
+}, 2000);
+
+}
 
 /* スコア表示フォーマット（カンマ区切り・小数2桁） */
 function formatScore(val){
@@ -1927,46 +2075,58 @@ note.remove();
 /* 演出 */
 tapEffect(lane, judgeText.style.color);
 
-/* コンボ演出 + SE */
-if(combo >= 100 && combo % 100 === 0){
+/* コンボ演出 + SE + 画像 */
+if(combo >= 200 && combo % 200 === 0){
 
 playSE("se-combo100");
+showComboImage(200);
+judgeText.style.color = "#ff44ff";
+judgeText.innerText = "🌟 " + combo + " COMBO 🌟";
+
+}else if(combo === 150){
+
+playSE("se-combo100");
+showComboImage(150);
+judgeText.style.color = "#ff44ff";
+judgeText.innerText = "🌟 150 COMBO 🌟";
+
+}else if(combo >= 100 && combo % 100 === 0){
+
+playSE("se-combo100");
+showComboImage(100);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"🔥 AMAZING COMBO 🔥";
+judgeText.innerText = "🔥 AMAZING COMBO 🔥";
 
 }else if(combo === 70){
 
 playSE("se-combo70");
+showComboImage(70);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"70 COMBO 🔥";
+judgeText.innerText = "70 COMBO 🔥";
 
 }else if(combo === 50){
 
 playSE("se-combo50");
+showComboImage(50);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"50 COMBO 🔥";
+judgeText.innerText = "50 COMBO 🔥";
 
 }else if(combo === 30){
 
 playSE("se-combo30");
+showComboImage(30);
 judgeText.style.color = "#ffe066";
-judgeText.innerText =
-"30 COMBO 🔥";
+judgeText.innerText = "30 COMBO 🔥";
 
 }else if(combo >= 50){
 
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"🔥 AMAZING COMBO 🔥";
+judgeText.innerText = "🔥 AMAZING COMBO 🔥";
 
 }else if(combo % 10 === 0){
 
 judgeText.style.color = "#ffe066";
-judgeText.innerText =
-combo + " COMBO 🔥";
+judgeText.innerText = combo + " COMBO 🔥";
 
 }
 
@@ -2172,6 +2332,9 @@ hitNote(3);
 const resultAccuracyEl =
 document.getElementById("result-accuracy");
 
+const resultFailureEl =
+document.getElementById("result-failure");
+
 const resultPerfectMsg =
 document.getElementById("result-perfect-msg");
 
@@ -2185,13 +2348,16 @@ music.addEventListener(
 
 judgeText.innerText = "";
 
-/* 成功率計算：ノート通過ミスのみで計算（totalNotesベース） */
-const noteMiss = totalNotes - hitNotes;
-const accuracy = totalNotes > 0
-? Math.max(0, Math.round(
-((totalNotes - noteMiss) / totalNotes) * 100
-))
+/* 成功・失敗率：全ミス(miss)をtotalNotesで割る
+   空タップで miss > totalNotes になる場合も考慮 */
+const baseDenom = Math.max(totalNotes, miss);
+const accuracy = baseDenom > 0
+? Math.max(0, Math.min(100, Math.round(
+((baseDenom - miss) / baseDenom) * 100
+)))
 : 0;
+
+const failure = Math.max(0, 100 - accuracy);
 
 /* ① ゲーム画面に成功率を大きく表示 */
 const overlay =
@@ -2203,18 +2369,24 @@ document.getElementById("accuracy-number")
 document.getElementById("accuracy-label")
 .innerText = "SUCCESS RATE";
 
+document.getElementById("accuracy-number")
+.innerText = accuracy + "%";
+
 const subEl =
 document.getElementById("accuracy-sub");
+
+const failureLabel = failure > 0
+? `FAILURE : ${failure}%` : "";
 
 if(accuracy === 100){
 subEl.innerText =
 "🏆 SUPER EXCELLENT\nCONGRATULATIONS! 🏆";
 }else if(accuracy >= 90){
-subEl.innerText = "⭐ EXCELLENT!";
+subEl.innerText = "⭐ EXCELLENT!\n" + failureLabel;
 }else if(accuracy >= 70){
-subEl.innerText = "👏 GREAT JOB!";
+subEl.innerText = "👏 GREAT JOB!\n" + failureLabel;
 }else{
-subEl.innerText = "";
+subEl.innerText = failureLabel;
 }
 
 overlay.style.display = "flex";
@@ -2242,6 +2414,7 @@ resultMissEl.innerText = miss;
 resultDeductEl.innerText = "-" + totalDeduct;
 
 resultAccuracyEl.innerText = accuracy + "%";
+resultFailureEl.innerText = failure + "%";
 
 if(accuracy === 100){
 resultPerfectMsg.style.display = "block";
@@ -2256,6 +2429,16 @@ resultFullcomboBadge.style.display = "none";
 }
 
 resultScreen.style.display = "flex";
+
+/* ランキング読み込み＆送信ボタンリセット */
+loadRanking();
+const submitBtn = document.querySelector(
+"#ranking-submit-area button"
+);
+if(submitBtn){
+submitBtn.innerText = "🏆 スコアを登録する";
+submitBtn.disabled = false;
+}
 
 /* プレイ終了UIに戻す */
 setPlayingUI(false);
@@ -2290,6 +2473,126 @@ if("serviceWorker" in navigator){
 
 /* 起動時に曲リスト生成 */
 buildSongList();
+
+/* ====== Firebase 初期化 ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyA3TeuD786-A99GaK3-SoG56ytMMK7pWWY",
+  authDomain: "otogae-9b399.firebaseapp.com",
+  projectId: "otogae-9b399",
+  storageBucket: "otogae-9b399.firebasestorage.app",
+  messagingSenderId: "401507791775",
+  appId: "1:401507791775:web:2a33a7e941f7729b2503aa"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* スコア送信 */
+async function submitScore(){
+
+const nameInput =
+document.getElementById("player-name-input");
+
+const playerName =
+nameInput.value.trim() || "名無し";
+
+const songTitle =
+SONGS[currentSong]
+? SONGS[currentSong].title
+: "不明";
+
+try{
+
+await db.collection("scores").add({
+name: playerName,
+score: score,
+accuracy: Math.max(0, Math.min(100,
+Math.round(
+((Math.max(totalNotes, miss) - miss)
+/ Math.max(totalNotes, miss)) * 100
+)
+)),
+song: songTitle,
+maxCombo: maxCombo,
+miss: miss,
+createdAt:
+firebase.firestore.FieldValue.serverTimestamp()
+});
+
+/* ボタンを送信済みに */
+document.querySelector(
+"#ranking-submit-area button"
+).innerText = "✅ 登録しました！";
+
+document.querySelector(
+"#ranking-submit-area button"
+).disabled = true;
+
+/* ランキング更新 */
+loadRanking();
+
+}catch(e){
+console.error("スコア送信エラー:", e);
+alert("送信に失敗しました");
+}
+
+}
+
+/* ランキング取得・表示 */
+async function loadRanking(){
+
+const list =
+document.getElementById("ranking-list");
+
+list.innerHTML =
+"<div style='color:rgba(255,255,255,0.5);text-align:center;'>読み込み中...</div>";
+
+try{
+
+const snap = await db.collection("scores")
+.orderBy("score", "desc")
+.limit(10)
+.get();
+
+if(snap.empty){
+list.innerHTML =
+"<div style='color:rgba(255,255,255,0.5);text-align:center;'>まだ記録がありません</div>";
+return;
+}
+
+const medals = ["🥇","🥈","🥉"];
+
+list.innerHTML = snap.docs.map((doc, i)=>{
+
+const d = doc.data();
+const medal =
+medals[i] || (i + 1) + ".";
+
+return `<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:4px 6px;
+border-radius:8px;
+background:rgba(255,255,255,${i < 3 ? "0.12" : "0.05"});
+">
+<span style="color:${i === 0 ? "#ffe066" : i === 1 ? "#cccccc" : i === 2 ? "#ffaa66" : "white"}">
+${medal} ${d.name || "名無し"}
+</span>
+<span style="color:#8ce8ff;font-weight:bold;">
+${formatScore(d.score || 0)}
+</span>
+</div>`;
+
+}).join("");
+
+}catch(e){
+console.error("ランキング取得エラー:", e);
+list.innerHTML =
+"<div style='color:#ff6060;text-align:center;'>読み込み失敗</div>";
+}
+
+}
 
 </script>
 
