@@ -682,6 +682,33 @@ color:#333;
 box-shadow: 0 0 20px white;
 }
 
+/* 進行バー */
+#progress-bar-wrap{
+position:absolute;
+top:48px;
+left:0;
+width:100%;
+z-index:100;
+display:none;
+flex-direction:column;
+align-items:flex-end;
+padding:0 10px;
+gap:2px;
+}
+
+#progress-bar{
+width:100%;
+height:5px;
+border-radius:4px;
+background:rgba(255,255,255,0.2);
+}
+
+#progress-time{
+font-size:11px;
+color:rgba(255,255,255,0.7);
+font-weight:bold;
+}
+
 /* ランキングモーダル */
 #ranking-modal{
 position:absolute;
@@ -743,6 +770,12 @@ id="score">
 Score : 0.00
 </div>
 
+</div>
+
+<!-- 進行バー -->
+<div id="progress-bar-wrap">
+<div id="progress-bar"></div>
+<div id="progress-time">0:00 / 0:00</div>
 </div>
 
 <!-- コントロール（プレイ中は左下へ） -->
@@ -1035,6 +1068,24 @@ src="kaze.mp3">
 <audio id="se-combo100" src="combo100.mp3" preload="auto"></audio>
 <audio id="se-miss"     src="miss.mp3"     preload="auto"></audio>
 
+<!-- コンボ画像オーバーレイ -->
+<div id="combo-img-overlay" style="
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%) scale(0.5);
+z-index:200;
+display:none;
+pointer-events:none;
+opacity:0;
+transition:opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+">
+<img id="combo-img" src="" alt="" style="
+width:220px;height:220px;
+border-radius:50%;object-fit:cover;
+box-shadow:0 0 30px rgba(255,255,255,0.8),0 0 60px rgba(140,232,255,0.6);
+">
+</div>
+
 <script>
 
 /* 全画面 */
@@ -1099,6 +1150,67 @@ const el = document.getElementById(id);
 if(!el) return;
 el.currentTime = 0;
 el.play().catch(()=>{});
+}
+
+/* iOS音声アンロック */
+let audioUnlocked = false;
+
+function unlockAudio(){
+if(audioUnlocked) return;
+audioUnlocked = true;
+["se-combo30","se-combo50","se-combo70","se-combo100","se-miss"]
+.forEach(id=>{
+const el = document.getElementById(id);
+if(!el) return;
+el.volume = 0;
+el.play().then(()=>{ el.pause(); el.volume = 1; })
+.catch(()=>{ el.volume = 1; });
+});
+}
+
+document.addEventListener("touchstart", unlockAudio, { once:true, passive:true });
+document.addEventListener("mousedown",  unlockAudio, { once:true });
+
+/* コンボ達成画像データ */
+const COMBO_IMAGES = {
+30:  ["30.jfif","aoi30.jfif","daichi30.jfif"],
+50:  ["50.jfif","aoi50.jfif","ren50.jfif"],
+70:  ["70.jfif","aoi70.jfif","ren70.jfif","yuma70.jfif"],
+100: ["100.jfif","aoi100.jfif"],
+150: ["150.jfif","yuma150.jfif"],
+200: ["200.jfif"]
+};
+
+let comboImgTimer = null;
+
+function showComboImage(comboCount){
+const imgs = COMBO_IMAGES[comboCount];
+if(!imgs || imgs.length === 0) return;
+
+const src = imgs[Math.floor(Math.random() * imgs.length)];
+const overlay = document.getElementById("combo-img-overlay");
+const img     = document.getElementById("combo-img");
+
+if(comboImgTimer) clearTimeout(comboImgTimer);
+
+img.src = src;
+overlay.style.display = "block";
+
+requestAnimationFrame(()=>{
+requestAnimationFrame(()=>{
+overlay.style.opacity = "1";
+overlay.style.transform = "translate(-50%,-50%) scale(1)";
+});
+});
+
+comboImgTimer = setTimeout(()=>{
+overlay.style.opacity = "0";
+overlay.style.transform = "translate(-50%,-50%) scale(0.5)";
+setTimeout(()=>{
+overlay.style.display = "none";
+img.src = "";
+}, 300);
+}, 2000);
 }
 
 /* 曲データ */
@@ -1357,6 +1469,38 @@ startGame();
 }
 
 /* ゲーム開始 */
+/* 進行バー */
+const progressWrap =
+document.getElementById("progress-bar-wrap");
+
+const progressBar =
+document.getElementById("progress-bar");
+
+const progressTime =
+document.getElementById("progress-time");
+
+function formatTime(sec){
+const m = Math.floor(sec / 60);
+const s = Math.floor(sec % 60)
+.toString().padStart(2,"0");
+return m + ":" + s;
+}
+
+function updateProgress(){
+if(!started || paused) return;
+const cur = music.currentTime;
+const dur = music.duration || 1;
+const pct = Math.min(cur / dur * 100, 100);
+progressBar.style.background =
+`linear-gradient(90deg,
+#8ce8ff ${pct}%,
+rgba(255,255,255,0.2) ${pct}%
+)`;
+progressTime.innerText =
+formatTime(cur) + " / " + formatTime(dur);
+requestAnimationFrame(updateProgress);
+}
+
 function startGame(){
 
 started = true;
@@ -1365,6 +1509,9 @@ startMenuEl.style.display = "none";
 
 /* ランキングモーダルを閉じる */
 if(typeof closeRankingModal === "function") closeRankingModal();
+
+/* 進行バー表示 */
+progressWrap.style.display = "flex";
 
 /* プレイ中UI切り替え */
 setPlayingUI(true);
@@ -1375,12 +1522,14 @@ music.play();
 if(music.duration && !isNaN(music.duration)){
 generateNotes();
 gameLoop();
+updateProgress();
 }else{
 music.addEventListener(
 "loadedmetadata",
 ()=>{
 generateNotes();
 gameLoop();
+updateProgress();
 },
 { once: true }
 );
@@ -1713,46 +1862,58 @@ note.remove();
 /* 演出 */
 tapEffect(lane, judgeText.style.color);
 
-/* コンボ演出 + SE */
-if(combo >= 100 && combo % 100 === 0){
+/* コンボ演出 + SE + 画像 */
+if(combo >= 200 && combo % 200 === 0){
 
 playSE("se-combo100");
+showComboImage(200);
+judgeText.style.color = "#ff44ff";
+judgeText.innerText = "🌟 " + combo + " COMBO 🌟";
+
+}else if(combo === 150){
+
+playSE("se-combo100");
+showComboImage(150);
+judgeText.style.color = "#ff44ff";
+judgeText.innerText = "🌟 150 COMBO 🌟";
+
+}else if(combo >= 100 && combo % 100 === 0){
+
+playSE("se-combo100");
+showComboImage(100);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"🔥 AMAZING COMBO 🔥";
+judgeText.innerText = "🔥 AMAZING COMBO 🔥";
 
 }else if(combo === 70){
 
 playSE("se-combo70");
+showComboImage(70);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"70 COMBO 🔥";
+judgeText.innerText = "70 COMBO 🔥";
 
 }else if(combo === 50){
 
 playSE("se-combo50");
+showComboImage(50);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"50 COMBO 🔥";
+judgeText.innerText = "50 COMBO 🔥";
 
 }else if(combo === 30){
 
 playSE("se-combo30");
+showComboImage(30);
 judgeText.style.color = "#ffe066";
-judgeText.innerText =
-"30 COMBO 🔥";
+judgeText.innerText = "30 COMBO 🔥";
 
 }else if(combo >= 50){
 
 judgeText.style.color = "#ff66cc";
-judgeText.innerText =
-"🔥 AMAZING COMBO 🔥";
+judgeText.innerText = "🔥 AMAZING COMBO 🔥";
 
 }else if(combo % 10 === 0){
 
 judgeText.style.color = "#ffe066";
-judgeText.innerText =
-combo + " COMBO 🔥";
+judgeText.innerText = combo + " COMBO 🔥";
 
 }
 
@@ -1844,6 +2005,8 @@ resultScreen.style.display = "none";
 
 setPlayingUI(false);
 
+progressWrap.style.display = "none";
+
 startMenuEl.style.display = "flex";
 
 }
@@ -1879,6 +2042,8 @@ comboText.innerText = "0";
 judgeText.innerText = "READY";
 
 setPlayingUI(false);
+
+progressWrap.style.display = "none";
 
 startMenuEl.style.display = "flex";
 
@@ -2046,6 +2211,8 @@ if(btn){ btn.innerText = "🏆 スコアを登録する"; btn.disabled = false; 
 
 /* プレイ終了UIに戻す */
 setPlayingUI(false);
+
+progressWrap.style.display = "none";
 
 }, 400);
 
