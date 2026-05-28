@@ -1071,8 +1071,10 @@ src="kaze.mp3">
 <!-- コンボ画像オーバーレイ -->
 <div id="combo-img-overlay" style="
 position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%) scale(0.5);
+top:70px;
+right:10px;
+transform:scale(0.5);
+transform-origin:top right;
 z-index:200;
 display:none;
 pointer-events:none;
@@ -1080,9 +1082,9 @@ opacity:0;
 transition:opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
 ">
 <img id="combo-img" src="" alt="" style="
-width:220px;height:220px;
+width:120px;height:120px;
 border-radius:50%;object-fit:cover;
-box-shadow:0 0 30px rgba(255,255,255,0.8),0 0 60px rgba(140,232,255,0.6);
+box-shadow:0 0 20px rgba(255,255,255,0.8),0 0 40px rgba(140,232,255,0.6);
 ">
 </div>
 
@@ -1199,13 +1201,13 @@ overlay.style.display = "block";
 requestAnimationFrame(()=>{
 requestAnimationFrame(()=>{
 overlay.style.opacity = "1";
-overlay.style.transform = "translate(-50%,-50%) scale(1)";
+overlay.style.transform = "scale(1)";
 });
 });
 
 comboImgTimer = setTimeout(()=>{
 overlay.style.opacity = "0";
-overlay.style.transform = "translate(-50%,-50%) scale(0.5)";
+overlay.style.transform = "scale(0.5)";
 setTimeout(()=>{
 overlay.style.display = "none";
 img.src = "";
