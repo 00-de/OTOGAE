@@ -32,9 +32,9 @@ content="#001d3d">
 <link rel="manifest"
 href="manifest.json">
 
-<!-- Firebase SDK (compat版) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <style>
 
@@ -335,106 +335,6 @@ box-shadow:
 0 0 35px #8ce8ff;
 }
 
-.song-delete-btn{
-float:right;
-font-size:12px;
-color:rgba(255,100,100,0.8);
-margin-left:8px;
-padding:2px 4px;
-border-radius:6px;
-background:rgba(255,100,100,0.15);
-}
-
-.song-delete-btn:active{
-background:rgba(255,100,100,0.4);
-}
-
-/* 進行バー */
-#progress-bar-wrap{
-position:absolute;
-top: 48px;
-left: 0;
-width: 100%;
-z-index: 100;
-display: none;
-flex-direction: column;
-align-items: flex-end;
-padding: 0 10px;
-gap: 2px;
-}
-
-#progress-bar{
-width: 100%;
-height: 4px;
-background: rgba(255,255,255,0.2);
-border-radius: 4px;
-overflow: hidden;
-position: relative;
-}
-
-#progress-bar::after{
-content: "";
-position: absolute;
-top: 0; left: 0;
-height: 100%;
-width: 0%;
-background: linear-gradient(
-90deg, #8ce8ff, #ffffff
-);
-box-shadow: 0 0 8px #8ce8ff;
-border-radius: 4px;
-transition: width 0.5s linear;
-}
-
-#progress-time{
-font-size: 11px;
-color: rgba(255,255,255,0.7);
-font-weight: bold;
-}
-
-/* コンボ画像オーバーレイ */
-#combo-img-overlay{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%) scale(0.5);
-z-index:200;
-display:none;
-pointer-events:none;
-opacity:0;
-transition:
-opacity 0.25s ease,
-transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-}
-
-#combo-img-overlay.show{
-opacity:1;
-transform:translate(-50%,-50%) scale(1);
-}
-
-#combo-img-overlay img{
-width:220px;
-height:220px;
-border-radius:50%;
-object-fit:cover;
-box-shadow:
-0 0 30px rgba(255,255,255,0.8),
-0 0 60px rgba(140,232,255,0.6);
-}
-
-/* ダブルノート（上級） */
-.note.double{
-background:
-linear-gradient(
-90deg,
-#ffcc00,
-#ff6600
-);
-box-shadow:
-0 0 15px #ff6600,
-0 0 35px #ff6600;
-}
-
 /* タップ演出 */
 .tap-effect{
 position:absolute;
@@ -462,51 +362,6 @@ opacity:0;
 transform:scaleY(2);
 }
 
-}
-
-/* 曲追加エリア */
-#add-song-area{
-width:100%;
-max-width:280px;
-margin-top:4px;
-}
-
-#add-song-label{
-display:block;
-width:100%;
-padding:12px 16px;
-border-radius:14px;
-border:2px dashed rgba(140,232,255,0.5);
-background:transparent;
-color:#8ce8ff;
-font-size:14px;
-font-weight:bold;
-text-align:center;
-box-sizing:border-box;
-}
-
-#add-song-input{
-display:block;
-width:100%;
-margin-top:6px;
-padding:8px;
-border-radius:10px;
-border:1px solid rgba(140,232,255,0.3);
-background:rgba(255,255,255,0.08);
-color:white;
-font-size:13px;
-box-sizing:border-box;
-}
-
-/* iOSでfile inputのテキストを白に */
-#add-song-input::-webkit-file-upload-button{
-background:rgba(140,232,255,0.2);
-color:#8ce8ff;
-border:1px solid rgba(140,232,255,0.4);
-border-radius:8px;
-padding:6px 10px;
-font-size:12px;
-font-weight:bold;
 }
 
 /* 曲選択メニュー */
@@ -827,6 +682,43 @@ color:#333;
 box-shadow: 0 0 20px white;
 }
 
+/* ランキングモーダル */
+#ranking-modal{
+position:absolute;
+top:0;left:0;
+width:100%;height:100%;
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+z-index:450;
+background:rgba(0,10,40,0.93);
+backdrop-filter:blur(6px);
+padding:24px 16px;
+box-sizing:border-box;
+overflow-y:auto;
+gap:12px;
+}
+
+.ranking-title{
+font-size:20px;
+font-weight:bold;
+color:#8ce8ff;
+text-shadow:0 0 15px #8ce8ff;
+letter-spacing:3px;
+text-align:center;
+}
+
+.ranking-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:6px 10px;
+border-radius:10px;
+width:100%;
+max-width:320px;
+}
+
 </style>
 </head>
 
@@ -851,12 +743,6 @@ id="score">
 Score : 0.00
 </div>
 
-</div>
-
-<!-- 進行バー -->
-<div id="progress-bar-wrap">
-<div id="progress-bar"></div>
-<div id="progress-time">0:00 / 0:00</div>
 </div>
 
 <!-- コントロール（プレイ中は左下へ） -->
@@ -893,11 +779,6 @@ onclick="setHardMode()">
 <!-- 判定 -->
 <div id="judge">
 READY
-</div>
-
-<!-- コンボ画像オーバーレイ -->
-<div id="combo-img-overlay">
-<img id="combo-img" src="" alt="">
 </div>
 
 <!-- フルコン -->
@@ -947,12 +828,6 @@ style="color:#ff7070;">-0</span>
 style="color:#ffe066;">0%</span>
 </div>
 
-<div class="result-row">
-<span class="result-label">FAILURE RATE</span>
-<span class="result-value" id="result-failure"
-style="color:#ff7070;">0%</span>
-</div>
-
 </div>
 
 <!-- 100%達成メッセージ -->
@@ -990,52 +865,42 @@ style="background:rgba(255,255,255,0.2);color:white;box-shadow:0 0 10px rgba(255
 
 </div>
 
-<!-- プレイヤー名入力＆スコア送信 -->
-<div id="ranking-submit-area" style="
-width:100%;max-width:280px;
-display:flex;flex-direction:column;gap:8px;
-">
+<!-- 名前入力＆スコア送信 -->
+<div style="width:100%;max-width:280px;display:flex;flex-direction:column;gap:8px;">
+
 <input type="text" id="player-name-input"
 maxlength="10"
 placeholder="名前を入力（10文字以内）"
 style="
-padding:8px 12px;
-border-radius:10px;
+padding:8px 12px;border-radius:10px;
 border:1px solid rgba(140,232,255,0.4);
 background:rgba(255,255,255,0.1);
 color:white;font-size:14px;
-text-align:center;
-box-sizing:border-box;width:100%;
+text-align:center;width:100%;box-sizing:border-box;
 ">
-<button onclick="submitScore()"
+
+<button id="submit-score-btn"
+onclick="submitScore()"
 style="
-padding:10px;border:none;
-border-radius:12px;
+padding:10px;border:none;border-radius:12px;
 background:rgba(140,232,255,0.3);
-color:#8ce8ff;font-size:14px;
-font-weight:bold;
+color:#8ce8ff;font-size:14px;font-weight:bold;
 border:1px solid rgba(140,232,255,0.5);
 ">
 🏆 スコアを登録する
 </button>
+
 </div>
 
-<!-- ランキング表示 -->
-<div id="ranking-area" style="
-width:100%;max-width:280px;
-">
-<div style="font-size:13px;color:#aee8ff;font-weight:bold;
-text-align:center;margin-bottom:6px;">
+<!-- リザルト内ランキング -->
+<div style="width:100%;max-width:280px;">
+<div style="font-size:13px;color:#aee8ff;font-weight:bold;text-align:center;margin-bottom:6px;">
 🏆 TOP 10 RANKING
 </div>
-<div id="ranking-list" style="
-display:flex;flex-direction:column;gap:4px;
-font-size:13px;
-">
-<div style="color:rgba(255,255,255,0.5);text-align:center;">
-読み込み中...
-</div>
-</div>
+<div id="result-ranking-list" style="
+display:flex;flex-direction:column;gap:4px;font-size:13px;
+color:rgba(255,255,255,0.5);text-align:center;
+">読み込み中...</div>
 </div>
 
 </div>
@@ -1056,23 +921,21 @@ font-size:13px;
 
 <div class="song-select-title">🎵 SELECT SONG</div>
 
-<div class="song-list" id="songList">
-<!-- JSで動的生成 -->
-</div>
+<div class="song-list">
 
-<!-- 曲追加エリア -->
-<div id="add-song-area">
+<button class="song-btn selected"
+id="songBtn0"
+onclick="selectSong(0)">
+<span class="song-btn-title">風になる合図</span>
+<span class="song-btn-artist">蓮</span>
+</button>
 
-<label for="add-song-input" id="add-song-label">
-  ➕ 曲ファイルを選ぶ
-</label>
-
-<input
-  type="file"
-  id="add-song-input"
-  accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,audio/aac,.mp3,.m4a,.wav,.ogg,.aac"
-  onchange="addSongFromFile(this)"
->
+<button class="song-btn"
+id="songBtn1"
+onclick="selectSong(1)">
+<span class="song-btn-title">きらめく方程式</span>
+<span class="song-btn-artist">DayDream プラス</span>
+</button>
 
 </div>
 
@@ -1087,6 +950,48 @@ onclick="restartGame()"
 style="margin-top:4px;">
 ▶ スタート
 </button>
+
+<button
+onclick="showRankingModal()"
+style="
+padding:14px 28px;
+font-size:18px;
+font-weight:bold;
+border:none;
+border-radius:18px;
+background:rgba(140,232,255,0.15);
+color:#8ce8ff;
+box-shadow:0 0 15px rgba(140,232,255,0.3);
+border:1px solid rgba(140,232,255,0.4);
+width:100%;
+">
+🏆 スコアランキング
+</button>
+
+</div>
+
+<!-- ランキングモーダル -->
+<div id="ranking-modal">
+
+<div class="ranking-title">🏆 TOP 10 RANKING</div>
+
+<div id="ranking-modal-list" style="
+width:100%;max-width:320px;
+display:flex;flex-direction:column;
+gap:5px;font-size:13px;
+color:rgba(255,255,255,0.5);
+text-align:center;
+">読み込み中...</div>
+
+<button onclick="closeRankingModal()"
+style="
+padding:12px 36px;
+border:none;border-radius:16px;
+background:white;color:#333;
+font-size:16px;font-weight:bold;
+box-shadow:0 0 15px white;
+margin-top:8px;
+">✕ 閉じる</button>
 
 </div>
 
@@ -1178,61 +1083,6 @@ btn.innerText = "✕";
 }
 );
 
-/* コンボ達成画像データ */
-const COMBO_IMAGES = {
-30:  ["30.jfif","aoi30.jfif","daichi30.jfif"],
-50:  ["50.jfif","aoi50.jfif","ren50.jfif"],
-70:  ["70.jfif","aoi70.jfif","ren70.jfif","yuma70.jfif"],
-100: ["100.jfif","aoi100.jfif"],
-150: ["150.jfif","yuma150.jfif"],
-200: ["200.jfif"]
-};
-
-let comboImgTimer = null;
-
-function showComboImage(comboCount){
-
-const imgs = COMBO_IMAGES[comboCount];
-if(!imgs || imgs.length === 0) return;
-
-/* ランダムに1枚選ぶ */
-const src =
-imgs[Math.floor(Math.random() * imgs.length)];
-
-const overlay =
-document.getElementById("combo-img-overlay");
-
-const img =
-document.getElementById("combo-img");
-
-/* 前のタイマーをクリア */
-if(comboImgTimer){
-clearTimeout(comboImgTimer);
-}
-
-img.src = src;
-overlay.style.display = "block";
-
-requestAnimationFrame(()=>{
-requestAnimationFrame(()=>{
-overlay.classList.add("show");
-});
-});
-
-/* 2秒後にフェードアウト */
-comboImgTimer = setTimeout(()=>{
-
-overlay.classList.remove("show");
-
-setTimeout(()=>{
-overlay.style.display = "none";
-img.src = "";
-}, 300);
-
-}, 2000);
-
-}
-
 /* スコア表示フォーマット（カンマ区切り・小数2桁） */
 function formatScore(val){
 const fixed = val.toFixed(2);
@@ -1251,47 +1101,7 @@ el.currentTime = 0;
 el.play().catch(()=>{});
 }
 
-/* iOS音声アンロック：最初のタップで全SEを解放 */
-let audioUnlocked = false;
-
-function unlockAudio(){
-
-if(audioUnlocked) return;
-audioUnlocked = true;
-
-const seIds = [
-"se-combo30",
-"se-combo50",
-"se-combo70",
-"se-combo100",
-"se-miss"
-];
-
-seIds.forEach(id=>{
-const el =
-document.getElementById(id);
-if(!el) return;
-el.volume = 0;
-el.play()
-.then(()=>{ el.pause(); el.volume = 1; })
-.catch(()=>{ el.volume = 1; });
-});
-
-}
-
-document.addEventListener(
-"touchstart",
-unlockAudio,
-{ once: true, passive: true }
-);
-
-document.addEventListener(
-"mousedown",
-unlockAudio,
-{ once: true }
-);
-
-/* 曲データ ─ ここにオブジェクトを追加するだけで曲選択に自動反映 */
+/* 曲データ */
 const SONGS = [
 {
 title: "風になる合図",
@@ -1303,179 +1113,28 @@ title: "きらめく方程式",
 artist: "DayDream プラス",
 src: "きらめく方程式.mp3"
 }
-/* ↓ 3曲目以降はここに追加
-,{
-title: "曲名",
-artist: "アーティスト名",
-src: "ファイル名.mp3"
-}
-*/
 ];
 
 let currentSong = 0;
-
-/* 曲を削除 */
-function deleteSong(e, index){
-
-e.stopPropagation();
-
-/* BlobURLを解放 */
-if(SONGS[index].isLocal){
-URL.revokeObjectURL(SONGS[index].src);
-}
-
-SONGS.splice(index, 1);
-
-if(currentSong >= SONGS.length){
-currentSong = SONGS.length - 1;
-}
-
-buildSongList();
-
-}
-
-/* ファイルから曲を追加（iOS対応） */
-function addSongFromFile(input){
-
-const file = input.files[0];
-if(!file) return;
-
-const url = URL.createObjectURL(file);
-
-const rawName =
-file.name.replace(/\.[^/.]+$/, "");
-
-const tmpAudio = new Audio();
-tmpAudio.src = url;
-
-tmpAudio.addEventListener(
-"loadedmetadata",
-()=>{
-
-SONGS.push({
-title: rawName,
-artist: "追加曲",
-src: url,
-isLocal: true,
-duration: tmpAudio.duration
-});
-
-currentSong = SONGS.length - 1;
-
-buildSongList();
-
-input.value = "";
-
-},
-{ once: true }
-);
-
-tmpAudio.onerror = ()=>{
-alert("読み込み失敗しました");
-input.value = "";
-};
-
-/* 明示的にloadを呼ぶ（iOS対策） */
-tmpAudio.load();
-
-}
-
-/* 曲リストを動的生成 */
-function buildSongList(){
-
-const list =
-document.getElementById("songList");
-
-list.innerHTML = "";
-
-SONGS.forEach((song, i)=>{
-
-const btn =
-document.createElement("button");
-
-btn.className =
-"song-btn" +
-(i === currentSong ? " selected" : "");
-
-btn.id = "songBtn" + i;
-
-/* ローカル曲は削除ボタン付き */
-const deleteBtn = song.isLocal
-? `<span class="song-delete-btn"
-onclick="deleteSong(event,${i})">✕</span>`
-: "";
-
-btn.innerHTML =
-`<span class="song-btn-title">
-${song.title}${deleteBtn}
-</span>
-<span class="song-btn-artist">
-${song.artist}
-</span>`;
-
-btn.onclick = ()=> selectSong(i);
-
-list.appendChild(btn);
-
-});
-
-}
-
-/* 進行バー更新 */
-const progressWrap =
-document.getElementById("progress-bar-wrap");
-
-const progressBar =
-document.getElementById("progress-bar");
-
-const progressTime =
-document.getElementById("progress-time");
-
-function formatTime(sec){
-const m = Math.floor(sec / 60);
-const s = Math.floor(sec % 60)
-.toString().padStart(2,"0");
-return m + ":" + s;
-}
-
-function updateProgress(){
-
-if(!started || paused) return;
-
-const cur = music.currentTime;
-const dur = music.duration || 1;
-const pct = Math.min(cur / dur * 100, 100);
-
-progressBar.style.setProperty(
-"--prog", pct + "%"
-);
-
-/* ::afterのwidthをCSS変数で制御 */
-progressBar.querySelector ?
-null : null;
-
-/* 直接styleで制御 */
-progressBar.style.background =
-`linear-gradient(90deg,
-#8ce8ff ${pct}%,
-rgba(255,255,255,0.2) ${pct}%
-)`;
-
-progressTime.innerText =
-formatTime(cur) +
-" / " +
-formatTime(dur);
-
-requestAnimationFrame(updateProgress);
-
-}
 
 /* 曲選択 */
 function selectSong(index){
 
 currentSong = index;
 
-buildSongList();
+/* ボタンのハイライト */
+SONGS.forEach((_,i)=>{
+const btn =
+document.getElementById(
+"songBtn" + i
+);
+if(btn){
+btn.classList.toggle(
+"selected",
+i === index
+);
+}
+});
 
 }
 /* 拡大防止 */
@@ -1561,7 +1220,6 @@ let gdStreak = 0;
 
 let started = false;
 let paused = false;
-let hardMode = false;
 
 /* 難易度 */
 let noteSpeed = 3;
@@ -1618,30 +1276,16 @@ i < songLength;
 i += noteInterval
 ){
 
-if(hardMode && Math.random() < 0.4){
-
-/* ダブルノート：異なる2レーンを同時に */
-const laneA =
-Math.floor(Math.random() * 4);
-
-let laneB;
-do{
-laneB =
-Math.floor(Math.random() * 4);
-}while(laneB === laneA);
-
-notes.push({ time:i, lane:laneA, double:true });
-notes.push({ time:i, lane:laneB, double:true });
-
-}else{
-
 notes.push({
-time:i,
-lane: Math.floor(Math.random() * 4),
-double: false
-});
 
-}
+time:i,
+
+lane:
+Math.floor(
+Math.random() * 4
+)
+
+});
 
 }
 
@@ -1719,8 +1363,8 @@ started = true;
 
 startMenuEl.style.display = "none";
 
-/* 進行バー表示 */
-progressWrap.style.display = "flex";
+/* ランキングモーダルを閉じる */
+if(typeof closeRankingModal === "function") closeRankingModal();
 
 /* プレイ中UI切り替え */
 setPlayingUI(true);
@@ -1731,14 +1375,12 @@ music.play();
 if(music.duration && !isNaN(music.duration)){
 generateNotes();
 gameLoop();
-updateProgress();
 }else{
 music.addEventListener(
 "loadedmetadata",
 ()=>{
 generateNotes();
 gameLoop();
-updateProgress();
 },
 { once: true }
 );
@@ -1789,10 +1431,6 @@ const note =
 document.createElement("div");
 
 note.classList.add("note");
-
-if(noteData.double){
-note.classList.add("double");
-}
 
 note.dataset.hit = "false";
 
@@ -2075,58 +1713,46 @@ note.remove();
 /* 演出 */
 tapEffect(lane, judgeText.style.color);
 
-/* コンボ演出 + SE + 画像 */
-if(combo >= 200 && combo % 200 === 0){
+/* コンボ演出 + SE */
+if(combo >= 100 && combo % 100 === 0){
 
 playSE("se-combo100");
-showComboImage(200);
-judgeText.style.color = "#ff44ff";
-judgeText.innerText = "🌟 " + combo + " COMBO 🌟";
-
-}else if(combo === 150){
-
-playSE("se-combo100");
-showComboImage(150);
-judgeText.style.color = "#ff44ff";
-judgeText.innerText = "🌟 150 COMBO 🌟";
-
-}else if(combo >= 100 && combo % 100 === 0){
-
-playSE("se-combo100");
-showComboImage(100);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText = "🔥 AMAZING COMBO 🔥";
+judgeText.innerText =
+"🔥 AMAZING COMBO 🔥";
 
 }else if(combo === 70){
 
 playSE("se-combo70");
-showComboImage(70);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText = "70 COMBO 🔥";
+judgeText.innerText =
+"70 COMBO 🔥";
 
 }else if(combo === 50){
 
 playSE("se-combo50");
-showComboImage(50);
 judgeText.style.color = "#ff66cc";
-judgeText.innerText = "50 COMBO 🔥";
+judgeText.innerText =
+"50 COMBO 🔥";
 
 }else if(combo === 30){
 
 playSE("se-combo30");
-showComboImage(30);
 judgeText.style.color = "#ffe066";
-judgeText.innerText = "30 COMBO 🔥";
+judgeText.innerText =
+"30 COMBO 🔥";
 
 }else if(combo >= 50){
 
 judgeText.style.color = "#ff66cc";
-judgeText.innerText = "🔥 AMAZING COMBO 🔥";
+judgeText.innerText =
+"🔥 AMAZING COMBO 🔥";
 
 }else if(combo % 10 === 0){
 
 judgeText.style.color = "#ffe066";
-judgeText.innerText = combo + " COMBO 🔥";
+judgeText.innerText =
+combo + " COMBO 🔥";
 
 }
 
@@ -2218,8 +1844,6 @@ resultScreen.style.display = "none";
 
 setPlayingUI(false);
 
-progressWrap.style.display = "none";
-
 startMenuEl.style.display = "flex";
 
 }
@@ -2261,7 +1885,6 @@ startMenuEl.style.display = "flex";
 }
 function setEasyMode(){
 
-hardMode = false;
 noteSpeed = 2;
 noteInterval = 650;
 
@@ -2275,7 +1898,6 @@ judgeText.innerText =
 /* 上級 */
 function setHardMode(){
 
-hardMode = true;
 noteSpeed = 5;
 noteInterval = 300;
 
@@ -2332,9 +1954,6 @@ hitNote(3);
 const resultAccuracyEl =
 document.getElementById("result-accuracy");
 
-const resultFailureEl =
-document.getElementById("result-failure");
-
 const resultPerfectMsg =
 document.getElementById("result-perfect-msg");
 
@@ -2348,16 +1967,13 @@ music.addEventListener(
 
 judgeText.innerText = "";
 
-/* 成功・失敗率：全ミス(miss)をtotalNotesで割る
-   空タップで miss > totalNotes になる場合も考慮 */
-const baseDenom = Math.max(totalNotes, miss);
-const accuracy = baseDenom > 0
-? Math.max(0, Math.min(100, Math.round(
-((baseDenom - miss) / baseDenom) * 100
-)))
+/* 成功率計算：ノート通過ミスのみで計算（totalNotesベース） */
+const noteMiss = totalNotes - hitNotes;
+const accuracy = totalNotes > 0
+? Math.max(0, Math.round(
+((totalNotes - noteMiss) / totalNotes) * 100
+))
 : 0;
-
-const failure = Math.max(0, 100 - accuracy);
 
 /* ① ゲーム画面に成功率を大きく表示 */
 const overlay =
@@ -2369,24 +1985,18 @@ document.getElementById("accuracy-number")
 document.getElementById("accuracy-label")
 .innerText = "SUCCESS RATE";
 
-document.getElementById("accuracy-number")
-.innerText = accuracy + "%";
-
 const subEl =
 document.getElementById("accuracy-sub");
-
-const failureLabel = failure > 0
-? `FAILURE : ${failure}%` : "";
 
 if(accuracy === 100){
 subEl.innerText =
 "🏆 SUPER EXCELLENT\nCONGRATULATIONS! 🏆";
 }else if(accuracy >= 90){
-subEl.innerText = "⭐ EXCELLENT!\n" + failureLabel;
+subEl.innerText = "⭐ EXCELLENT!";
 }else if(accuracy >= 70){
-subEl.innerText = "👏 GREAT JOB!\n" + failureLabel;
+subEl.innerText = "👏 GREAT JOB!";
 }else{
-subEl.innerText = failureLabel;
+subEl.innerText = "";
 }
 
 overlay.style.display = "flex";
@@ -2414,7 +2024,6 @@ resultMissEl.innerText = miss;
 resultDeductEl.innerText = "-" + totalDeduct;
 
 resultAccuracyEl.innerText = accuracy + "%";
-resultFailureEl.innerText = failure + "%";
 
 if(accuracy === 100){
 resultPerfectMsg.style.display = "block";
@@ -2430,20 +2039,13 @@ resultFullcomboBadge.style.display = "none";
 
 resultScreen.style.display = "flex";
 
-/* ランキング読み込み＆送信ボタンリセット */
-loadRanking();
-const submitBtn = document.querySelector(
-"#ranking-submit-area button"
-);
-if(submitBtn){
-submitBtn.innerText = "🏆 スコアを登録する";
-submitBtn.disabled = false;
-}
+/* ランキング読み込み・送信ボタンリセット */
+if(typeof loadRanking === "function") loadRanking();
+const btn = document.getElementById("submit-score-btn");
+if(btn){ btn.innerText = "🏆 スコアを登録する"; btn.disabled = false; }
 
 /* プレイ終了UIに戻す */
 setPlayingUI(false);
-
-progressWrap.style.display = "none";
 
 }, 400);
 
@@ -2463,19 +2065,21 @@ startMenuEl.style.display = "flex";
 
 }
 
-/* Service Worker 登録 */
-if("serviceWorker" in navigator){
+/* Service Worker 登録（本番環境のみ） */
+if("serviceWorker" in navigator &&
+  location.hostname !== "localhost" &&
+  !location.hostname.includes("claudeusercontent")){
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
       .catch(err => console.log("SW error:", err));
   });
 }
 
-/* 起動時に曲リスト生成 */
-buildSongList();
+</script>
 
-/* ====== Firebase 初期化 ====== */
-const firebaseConfig = {
+<!-- Firebase 初期化（独立スクリプト） -->
+<script>
+var firebaseConfig = {
   apiKey: "AIzaSyA3TeuD786-A99GaK3-SoG56ytMMK7pWWY",
   authDomain: "otogae-9b399.firebaseapp.com",
   projectId: "otogae-9b399",
@@ -2483,115 +2087,101 @@ const firebaseConfig = {
   messagingSenderId: "401507791775",
   appId: "1:401507791775:web:2a33a7e941f7729b2503aa"
 };
-
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+var db = firebase.firestore();
 
-/* スコア送信 */
-async function submitScore(){
-
-const nameInput =
-document.getElementById("player-name-input");
-
-const playerName =
-nameInput.value.trim() || "名無し";
-
-const songTitle =
-SONGS[currentSong]
-? SONGS[currentSong].title
-: "不明";
-
-try{
-
-await db.collection("scores").add({
-name: playerName,
-score: score,
-accuracy: Math.max(0, Math.min(100,
-Math.round(
-((Math.max(totalNotes, miss) - miss)
-/ Math.max(totalNotes, miss)) * 100
-)
-)),
-song: songTitle,
-maxCombo: maxCombo,
-miss: miss,
-createdAt:
-firebase.firestore.FieldValue.serverTimestamp()
-});
-
-/* ボタンを送信済みに */
-document.querySelector(
-"#ranking-submit-area button"
-).innerText = "✅ 登録しました！";
-
-document.querySelector(
-"#ranking-submit-area button"
-).disabled = true;
-
-/* ランキング更新 */
-loadRanking();
-
-}catch(e){
-console.error("スコア送信エラー:", e);
-alert("送信に失敗しました");
-}
-
-}
-
-/* ランキング取得・表示 */
-async function loadRanking(){
-
-const list =
-document.getElementById("ranking-list");
-
-list.innerHTML =
-"<div style='color:rgba(255,255,255,0.5);text-align:center;'>読み込み中...</div>";
-
-try{
-
-const snap = await db.collection("scores")
-.orderBy("score", "desc")
-.limit(10)
-.get();
-
+/* ランキング共通描画 */
+function renderRanking(snap, listEl){
+if(!listEl) return;
 if(snap.empty){
-list.innerHTML =
+listEl.innerHTML =
 "<div style='color:rgba(255,255,255,0.5);text-align:center;'>まだ記録がありません</div>";
 return;
 }
-
 const medals = ["🥇","🥈","🥉"];
-
-list.innerHTML = snap.docs.map((doc, i)=>{
-
+listEl.innerHTML = snap.docs.map((doc,i)=>{
 const d = doc.data();
-const medal =
-medals[i] || (i + 1) + ".";
-
-return `<div style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:4px 6px;
-border-radius:8px;
-background:rgba(255,255,255,${i < 3 ? "0.12" : "0.05"});
-">
-<span style="color:${i === 0 ? "#ffe066" : i === 1 ? "#cccccc" : i === 2 ? "#ffaa66" : "white"}">
-${medal} ${d.name || "名無し"}
-</span>
-<span style="color:#8ce8ff;font-weight:bold;">
-${formatScore(d.score || 0)}
-</span>
-</div>`;
-
+const medal = medals[i]||(i+1)+".";
+const col = i===0?"#ffe066":i===1?"#ccc":i===2?"#ffaa66":"white";
+const sc = (typeof d.score==="number")
+? d.score.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",")
+: "0.00";
+return `<div style="display:flex;justify-content:space-between;
+align-items:center;padding:5px 8px;border-radius:8px;
+background:rgba(255,255,255,${i<3?"0.12":"0.05"});">
+<span style="color:${col};font-weight:bold;">${medal} ${d.name||"名無し"}</span>
+<div style="text-align:right;">
+<div style="color:#8ce8ff;font-weight:bold;">${sc}</div>
+<div style="color:rgba(255,255,255,0.5);font-size:11px;">${d.song||""} ${d.accuracy||0}%</div>
+</div></div>`;
 }).join("");
-
-}catch(e){
-console.error("ランキング取得エラー:", e);
-list.innerHTML =
-"<div style='color:#ff6060;text-align:center;'>読み込み失敗</div>";
 }
 
+/* トップ画面ランキングモーダル */
+async function showRankingModal(){
+const modal = document.getElementById("ranking-modal");
+modal.style.display = "flex";
+const listEl = document.getElementById("ranking-modal-list");
+listEl.innerHTML = "<div style='color:rgba(255,255,255,0.5);text-align:center;'>読み込み中...</div>";
+try{
+const snap = await db.collection("scores")
+.orderBy("score","desc").limit(10).get();
+renderRanking(snap, listEl);
+}catch(e){
+listEl.innerHTML = "<div style='color:#ff6060;text-align:center;'>読み込み失敗</div>";
+}
+}
+
+function closeRankingModal(){
+document.getElementById("ranking-modal").style.display = "none";
+}
+
+/* リザルト画面ランキング読み込み */
+async function loadRanking(){
+const listEl = document.getElementById("result-ranking-list");
+if(!listEl) return;
+listEl.innerHTML = "<div style='color:rgba(255,255,255,0.5);text-align:center;'>読み込み中...</div>";
+try{
+const snap = await db.collection("scores")
+.orderBy("score","desc").limit(10).get();
+renderRanking(snap, listEl);
+}catch(e){
+listEl.innerHTML = "<div style='color:#ff6060;text-align:center;'>読み込み失敗</div>";
+}
+}
+
+/* スコア送信 */
+async function submitScore(){
+const nameInput = document.getElementById("player-name-input");
+const playerName = nameInput.value.trim() || "名無し";
+const btn = document.getElementById("submit-score-btn");
+const songTitle = (typeof SONGS!=="undefined" && SONGS[currentSong])
+? SONGS[currentSong].title : "不明";
+
+/* accuracy再計算 */
+const baseDenom = Math.max(totalNotes, miss);
+const acc = baseDenom > 0
+? Math.max(0,Math.min(100,Math.round(
+((baseDenom-miss)/baseDenom)*100)))
+: 0;
+
+try{
+await db.collection("scores").add({
+name: playerName,
+score: score,
+accuracy: acc,
+song: songTitle,
+maxCombo: maxCombo,
+miss: miss,
+createdAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+btn.innerText = "✅ 登録しました！";
+btn.disabled = true;
+loadRanking();
+}catch(e){
+console.error(e);
+alert("送信に失敗しました\n" + e.message);
+}
 }
 
 </script>
